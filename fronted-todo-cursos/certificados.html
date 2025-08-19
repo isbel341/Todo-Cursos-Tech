@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mis Certificados - Todo Cursos Tech Online</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="favicon.png" type="image/png">
+  <style>
+    body { margin:0; font-family:'Segoe UI',sans-serif; background:linear-gradient(135deg,#f5f7fa,#c3cfe2); color:#333; }
+    header { background:#fff; padding:16px 24px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 4px 12px rgba(0,0,0,0.05); position:sticky; top:0; z-index:1000; }
+    .logo { font-weight:bold; font-size:20px; color:#00796b; }
+    .menu-icon { display:none; font-size:24px; cursor:pointer; }
+    nav { display:flex; gap:14px; }
+    nav a { text-decoration:none; color:#333; font-weight:500; padding:8px 12px; border-radius:6px; transition:background 0.3s; }
+    nav a:hover { background-color:#f0f0f0; }
+    main { max-width:900px; margin:40px auto; padding:0 20px; }
+    h2 { text-align:center; margin-bottom:30px; font-size:28px; color:#00796b; }
+    .certificado { background:#fff; padding:16px 20px; border-radius:10px; box-shadow:0 6px 16px rgba(0,0,0,0.05); margin-bottom:20px; }
+    .certificado h3 { margin-top:0; color:#00796b; }
+    .certificado p { margin:5px 0; }
+    .certificado button { background:#00796b; color:#fff; border:none; padding:10px 16px; border-radius:6px; cursor:pointer; margin-top:10px; }
+    .certificado button:hover { background:#005e53; }
+    @media(max-width:768px){ nav{ display:none; flex-direction:column; width:100%; background:#fff; margin-top:10px;} nav.active{display:flex;} .menu-icon{display:block;} }
+  </style>
+</head>
+<body>
+
+<script>
+  if(!localStorage.getItem('token')){
+    alert('Debes iniciar sesión para ver tus certificados.');
+    window.location.href='login.html';
+  }
+</script>
+
+<header>
+  <div class="logo">Todo Cursos</div>
+  <div class="menu-icon" onclick="toggleMenu()">☰</div>
+  <nav id="navLinks">
+    <a href="bienvenida.html">Inicio</a>
+     <a href="bienvenida.html">Menu principal</a>
+    <a href="cursos.html">Cursos</a>
+    <a href="soporte.html">Soporte</a>
+    <a href="#" onclick="cerrarSesion()">Cerrar sesión</a>
+  </nav>
+</header>
+
+<main>
+  <h2>Mis Certificados</h2>
+  <div id="listaCertificados">
+    <p>Cargando certificados...</p>
+  </div>
+</main>
+
+<script>
+const token = localStorage.getItem('token');
+
+function toggleMenu() { document.getElementById('navLinks').classList.toggle('active'); }
+function cerrarSesion() { localStorage.clear(); window.location.href='index.html'; }
+
+async function cargarCertificados() {
+  const contenedor = document.getElementById('listaCertificados');
+  try {
+    // Traer cursos completados
+    const resCursos = await fetch('http://localhost:3001/api/cursos/completados', {
+      headers: { Authorization: 'Bearer ' + token }
+    });
+    const dataCursos = await resCursos.json();
+    const cursosCompletados = Array.isArray(dataCursos) ? dataCursos : [];
+
+    // Traer certificados existentes
+    const resCerts = await fetch('http://localhost:3001/api/certificados', {
+      headers: { Authorization: 'Bearer ' + token }
+    });
+    const certificados = await resCerts.json();
+
+    contenedor.innerHTML = '';
+    if(cursosCompletados.length === 0){
+      contenedor.innerHTML = '<p>No has completado ningún curso aún.</p>';
+      return;
+    }
+
+    cursosCompletados.forEach(curso => {
+      const div = document.createElement('div');
+      div.className = 'certificado';
+      const cert = certificados.find(c => c.curso_id === curso.id);
+      if(cert){
+        div.innerHTML = `
+          <h3>${curso.titulo}</h3>
+          <p>Emitido: ${new Date(cert.fecha_emision).toLocaleDateString()}</p>
+          <p>Código: <strong>${cert.codigo_certificado}</strong></p>
+          <button onclick="descargarPDF('${cert.id}')">Descargar PDF</button>
+        `;
+      } else {
+        div.innerHTML = `
+          <h3>${curso.titulo}</h3>
+          <p>No tienes certificado aún</p>
+          <button onclick="generarCertificado(${curso.id})">Generar certificado</button>
+        `;
+      }
+      contenedor.appendChild(div);
+    });
+  } catch(err){
+    contenedor.innerHTML = '<p>Error al cargar cursos y certificados</p>';
+    console.error(err);
+  }
+}
+
+async function descargarPDF(id){
+  try{
+    const res = await fetch(`http://localhost:3001/api/certificados/descargar/${id}`,{
+      method:'GET', headers:{ Authorization:'Bearer '+token }
+    });
+    if(!res.ok) throw new Error('No se pudo descargar el PDF');
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `certificado_${id}.pdf`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  }catch(err){ console.error(err); alert('Error al descargar el certificado'); }
+}
+
+async function generarCertificado(cursoId){
+  try{
+    const res = await fetch('http://localhost:3001/api/certificados/generar',{
+      method:'POST',
+      headers: { 'Content-Type':'application/json', Authorization:'Bearer '+token },
+      body: JSON.stringify({ curso_id: cursoId })  // ⚡ nombre corregido
+    });
+    const data = await res.json();
+    if(!res.ok){ alert(data.error || 'Error al generar certificado'); return; }
+    alert('Certificado generado correctamente');
+    cargarCertificados();
+  }catch(err){ console.error(err); alert('Error al generar certificado'); }
+}
+
+document.addEventListener('DOMContentLoaded', cargarCertificados);
+</script>
+
+</body>
+</html>

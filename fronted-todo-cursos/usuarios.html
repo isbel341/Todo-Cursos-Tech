@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Usuarios para chatear</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .usuario {
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+    .usuario:hover {
+      background: #e0f7fa;
+    }
+  </style>
+</head>
+<body>
+  <h2>Selecciona un usuario para chatear</h2>
+  <div id="usuarios"></div>
+
+  <script>
+    const token = localStorage.getItem('token');
+
+    async function cargarUsuarios() {
+      try {
+        const res = await fetch('http://localhost:3001/api/usuarios', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        const contenedor = document.getElementById('usuarios');
+        contenedor.innerHTML = '';
+
+        data.forEach(user => {
+          // Ignora al usuario actual
+          if (user.id == localStorage.getItem('user_id')) return;
+
+          const div = document.createElement('div');
+          div.className = 'usuario';
+          div.innerText = `${user.nombre} (${user.email})`;
+          div.onclick = () => {
+            localStorage.setItem('receptor_id', user.id);
+            window.location.href = 'chat.html';
+          };
+          contenedor.appendChild(div);
+        });
+      } catch (error) {
+        alert('Error al cargar usuarios');
+        console.error(error);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', cargarUsuarios);
+  </script>
+</body>
+</html>

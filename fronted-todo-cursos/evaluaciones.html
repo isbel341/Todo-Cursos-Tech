@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Evaluación del Curso</title>
+<style>
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width:900px; margin:40px auto; padding:0 20px 40px; background:#f9faff; color:#2c3e50; }
+  h1 { text-align:center; color:#3f51b5; margin-bottom:30px; }
+  .pregunta { background:#fff; padding:15px; border-radius:12px; margin-bottom:15px; box-shadow:0 6px 12px rgba(63,81,181,0.15); }
+  .opciones label { display:block; margin-bottom:6px; cursor:pointer; }
+  button { padding:10px 18px; border:none; border-radius:30px; cursor:pointer; font-weight:700; color:#fff; margin-top:10px; display:inline-block; }
+  button#btnEnviar { background:linear-gradient(45deg,#5f2eea,#8c60ff); }
+  button#btnCertificado { background:#28a745; }
+  button#btnCertificado:hover { background:#218838; }
+</style>
+</head>
+<body>
+
+<h1>Evaluación del Curso</h1>
+
+<div id="contenedorPreguntas"></div>
+
+<button id="btnEnviar">Enviar Respuestas</button>
+<button id="btnCertificado" style="display:none;">Obtener Certificado</button>
+
+<div id="resultado" style="margin-top:20px; font-weight:bold; text-align:center;"></div>
+
+<script>
+const token = localStorage.getItem("token");
+const urlParams = new URLSearchParams(window.location.search);
+const cursoId = parseInt(urlParams.get("curso_id"));
+
+if (!cursoId || isNaN(cursoId)) {
+  alert("No se especificó un curso válido.");
+  window.location.href = "cursos.html";
+}
+
+let preguntas = [];
+
+document.addEventListener("DOMContentLoaded", () => {
+  cargarPreguntas();
+  document.getElementById("btnEnviar").addEventListener("click", enviarEvaluacion);
+  document.getElementById("btnCertificado").addEventListener("click", generarCertificado);
+});
+
+async function cargarPreguntas() {
+  try {
+    const res = await fetch(`http://localhost:3001/api/evaluaciones?curso_id=${cursoId}`, {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+    preguntas = await res.json();
+    renderPreguntas();
+  } catch (err) {
+    console.error(err);
+    document.getElementById("contenedorPreguntas").innerHTML = "<p>Error al cargar las preguntas.</p>";
+  }
+}
+
+function renderPreguntas() {
+  const cont = document.getElementById("contenedorPreguntas");
+  cont.innerHTML = "";
+  preguntas.forEach((p, index) => {
+    const div = document.createElement("div");
+    div.classList.add("pregunta");
+    div.innerHTML = `
+      <p><strong>${index + 1}. ${p.pregunta}</strong></p>
+      <div class="opciones">
+        <label><input type="radio" name="pregunta_${p.id}" value="${p.opcion1}"> ${p.opcion1}</label>
+        <label><input type="radio" name="pregunta_${p.id}" value="${p.opcion2}"> ${p.opcion2}</label>
+        <label><input type="radio" name="pregunta_${p.id}" value="${p.opcion3}"> ${p.opcion3}</label>
+      </div>
+    `;
+    cont.appendChild(div);
+  });
+}
+
+async function enviarEvaluacion() {
+  const respuestas = preguntas.map(p => {
+    const seleccionada = document.querySelector(`input[name="pregunta_${p.id}"]:checked`);
+    return { evaluacion_id: p.id, respuesta: seleccionada ? seleccionada.value : null };
+  });
+
+  try {
+    const res = await fetch(`http://localhost:3001/api/evaluaciones/responder`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+      body: JSON.stringify({ curso_id: cursoId, respuestas })
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || "Error al enviar evaluación");
+    }
+
+    const resultado = await res.json();
+    document.getElementById("resultado").innerText = 
+      `Respuestas correctas: ${resultado.correctas}/${resultado.total} (${((resultado.correctas / resultado.total) * 100).toFixed(2)}%)`;
+
+    document.getElementById("btnCertificado").style.display = "inline-block";
+
+  } catch (err) {
+    console.error(err);
+    alert(err.message);
+  }
+}
+
+async function generarCertificado() {
+  try {
+    const res = await fetch('http://localhost:3001/api/certificados/generar', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json', 
+        'Authorization': `Bearer ${token}` 
+      },
+      body: JSON.stringify({ curso_id: cursoId })
+    });
+
+    if (!res.ok) {
+      const errData = await res.json();
+      alert(errData.error || 'Error al generar certificado');
+      return;
+    }
+
+    const certificado = await res.json();
+    alert(`Certificado generado con éxito.\nCódigo: ${certificado.certificado.codigo_certificado}`);
+    window.location.href = 'certificados.html';
+
+  } catch (err) {
+    console.error(err);
+    alert('Ocurrió un error al generar el certificado.');
+  }
+}
+</script>
+
+</body>
+</html>

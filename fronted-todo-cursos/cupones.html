@@ -1,0 +1,97 @@
+// Página de gestión de cupones para administradores en Todo Cursos Tech Online
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Gestión de Cupones</title>
+<style>
+  body { font-family: Arial; background: #f4f4f4; text-align: center; }
+  table { width: 80%; margin: auto; border-collapse: collapse; }
+  th, td { padding: 10px; border: 1px solid #ccc; }
+  input, button { padding: 8px; margin: 5px; }
+</style>
+</head>
+<body>
+
+<h2>Gestión de Cupones</h2>
+
+<div>
+  <input type="text" id="codigo" placeholder="Código">
+  <input type="number" id="descuento" placeholder="% Descuento">
+  <input type="date" id="fecha" placeholder="Fecha Expiración">
+  <button onclick="crearCupon()">Crear Cupón</button>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Código</th>
+      <th>Descuento (%)</th>
+      <th>Expira</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody id="tablaCupones"></tbody>
+</table>
+
+<script>
+const token = localStorage.getItem("token");
+
+// 📌 Cargar cupones
+async function cargarCupones() {
+  const res = await fetch("/api/cupones", {
+    headers: { "Authorization": "Bearer " + token }
+  });
+  const data = await res.json();
+  const tbody = document.getElementById("tablaCupones");
+  tbody.innerHTML = "";
+  data.forEach(c => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${c.id}</td>
+        <td>${c.codigo}</td>
+        <td>${c.descuento_porcentaje}</td>
+        <td>${c.fecha_expiracion}</td>
+        <td><button onclick="eliminarCupon(${c.id})">Eliminar</button></td>
+      </tr>
+    `;
+  });
+}
+
+// 📌 Crear cupón
+async function crearCupon() {
+  const codigo = document.getElementById("codigo").value;
+  const descuento = document.getElementById("descuento").value;
+  const fecha = document.getElementById("fecha").value;
+
+  const res = await fetch("/api/cupones", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token
+    },
+    body: JSON.stringify({ codigo, descuento_porcentaje: descuento, fecha_expiracion: fecha })
+  });
+
+  const data = await res.json();
+  alert(data.mensaje || data.error);
+  cargarCupones();
+}
+
+// 📌 Eliminar cupón
+async function eliminarCupon(id) {
+  if (!confirm("¿Seguro que deseas eliminar este cupón?")) return;
+  const res = await fetch(`/api/cupones/${id}`, {
+    method: "DELETE",
+    headers: { "Authorization": "Bearer " + token }
+  });
+  const data = await res.json();
+  alert(data.mensaje || data.error);
+  cargarCupones();
+}
+
+cargarCupones();
+</script>
+</body>
+</html>

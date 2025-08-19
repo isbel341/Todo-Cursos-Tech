@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Detalle del Curso - Videos</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px 40px;
+    background: #f9faff;
+    color: #2c3e50;
+  }
+  h1 { color: #3f51b5; text-align: center; margin-bottom: 30px; font-weight: 700; font-size: 2rem; }
+  .video-item {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(63, 81, 181, 0.15);
+    padding: 20px;
+    margin-bottom: 30px;
+  }
+  .video-item h3 { margin-top: 0; color: #3f51b5; font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; }
+  .video-item p { color: #556574; font-size: 0.95rem; margin-bottom: 12px; }
+  iframe { width: 100%; max-height: 450px; border-radius: 10px; outline: none; }
+  #btnEvaluacion {
+    display: none;
+    width: 100%;
+    max-width: 280px;
+    margin: 20px auto 0;
+    padding: 15px 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    text-align: center;
+    user-select: none;
+    display:block;
+    background: linear-gradient(45deg, #5f2eea, #8c60ff);
+  }
+  #btnEvaluacion:hover { background: linear-gradient(45deg, #4a24b8, #6a3ee0); }
+  #videoContainer p { text-align: center; color: #c0392b; font-weight: 600; font-size: 1.1rem; margin-top: 40px; }
+</style>
+</head>
+<body>
+
+<h1>Videos del Curso</h1>
+<div id="videoContainer"></div>
+<button id="btnEvaluacion" onclick="irAEvaluacion()">Ir a la Evaluación</button>
+
+<script>
+const token = localStorage.getItem('token');
+if (!token) {
+  alert('Debes iniciar sesión para acceder al curso.');
+  window.location.href = 'login.html';
+}
+
+const urlParams = new URLSearchParams(window.location.search);
+const cursoId = urlParams.get('id');
+const videoContainer = document.getElementById('videoContainer');
+const btnEvaluacion = document.getElementById('btnEvaluacion');
+
+if (!cursoId) {
+  videoContainer.innerHTML = '<p>Error: No se especificó un curso válido.</p>';
+} else {
+  cargarVideos();
+}
+
+function transformarYoutube(url) {
+  const match = url.match(/(?:v=|youtu\.be\/)([^&]+)/);
+  return match ? `https://www.youtube.com/embed/${match[1]}?enablejsapi=1` : url;
+}
+
+let videosVistos = new Set();
+let players = [];
+
+async function cargarVideos() {
+  try {
+    const res = await fetch(`http://localhost:3001/api/curso_detalle/videos?curso_id=${cursoId}`);
+    if (!res.ok) throw new Error('Error al obtener videos');
+    const videos = await res.json();
+
+    if (!Array.isArray(videos) || videos.length === 0) {
+      videoContainer.innerHTML = '<p>No hay videos disponibles para este curso.</p>';
+      return;
+    }
+
+    videos.forEach((video, index) => {
+      const videoDiv = document.createElement('div');
+      videoDiv.className = 'video-item';
+
+      const titulo = document.createElement('h3');
+      titulo.textContent = video.titulo || `Video ${index + 1}`;
+
+      const descripcion = document.createElement('p');
+      descripcion.textContent = video.descripcion || '';
+
+      if (video.url.includes('youtube.com') || video.url.includes('youtu.be')) {
+        const iframe = document.createElement('iframe');
+        iframe.src = transformarYoutube(video.url);
+        iframe.id = `ytplayer-${index}`;
+        iframe.frameBorder = '0';
+        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+        iframe.allowFullscreen = true;
+
+        videoDiv.appendChild(titulo);
+        videoDiv.appendChild(iframe);
+        videoDiv.appendChild(descripcion);
+
+        players.push({ index, iframeId: iframe.id });
+      }
+
+      videoContainer.appendChild(videoDiv);
+    });
+
+    // Cargar API de YouTube
+    const tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    document.body.appendChild(tag);
+
+  } catch (error) {
+    videoContainer.innerHTML = `<p>${error.message}</p>`;
+  }
+}
+
+// YouTube API
+function onYouTubeIframeAPIReady() {
+  players.forEach(p => {
+    new YT.Player(p.iframeId, {
+      events: {
+        'onStateChange': (event) => {
+          if (event.data === YT.PlayerState.ENDED) {
+            marcarVideoVisto(p.index);
+          }
+        }
+      }
+    });
+  });
+}
+
+function marcarVideoVisto(index) {
+  videosVistos.add(index);
+  if (videosVistos.size === players.length) {
+    btnEvaluacion.style.display = 'block';
+    marcarCursoCompletado();
+  }
+}
+
+function irAEvaluacion() {
+  window.location.href = `evaluaciones.html?curso_id=${cursoId}`;
+}
+
+async function marcarCursoCompletado() {
+  try {
+    const res = await fetch('http://localhost:3001/api/cursos-completados/marcar', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + token
+      },
+      body: JSON.stringify({ cursoId })
+    });
+    const data = await res.json();
+    console.log(data);
+  } catch (err) {
+    console.error('Error al marcar curso completado:', err);
+  }
+}
+</script>
+
+</body>
+</html>

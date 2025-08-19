@@ -1,0 +1,165 @@
+// Página de comentarios para cursos en Todo Cursos Tech Online
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comentarios del Curso</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        max-width: 800px;
+        margin: 30px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+        text-align: center;
+        color: #333;
+    }
+    .comentario {
+        border-bottom: 1px solid #ddd;
+        padding: 10px 0;
+    }
+    .comentario:last-child {
+        border-bottom: none;
+    }
+    .usuario {
+        font-weight: bold;
+        color: #2c3e50;
+    }
+    .fecha {
+        font-size: 12px;
+        color: #888;
+    }
+    .texto {
+        margin-top: 5px;
+    }
+    .stars {
+        color: gold;
+        margin-bottom: 5px;
+    }
+    form {
+        margin-top: 20px;
+        border-top: 2px solid #ddd;
+        padding-top: 15px;
+    }
+    textarea, select, button {
+        width: 100%;
+        padding: 10px;
+        margin: 5px 0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+    button {
+        background: #27ae60;
+        color: white;
+        cursor: pointer;
+    }
+    button:hover {
+        background: #219150;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Comentarios del Curso</h1>
+    <div id="listaComentarios"></div>
+
+    <form id="formComentario">
+        <h2>Agregar comentario</h2>
+        <textarea id="texto" placeholder="Escribe tu comentario..." required></textarea>
+        <label for="calificacion">Calificación</label>
+        <select id="calificacion" required>
+            <option value="">Selecciona</option>
+            <option value="1">⭐</option>
+            <option value="2">⭐⭐</option>
+            <option value="3">⭐⭐⭐</option>
+            <option value="4">⭐⭐⭐⭐</option>
+            <option value="5">⭐⭐⭐⭐⭐</option>
+        </select>
+        <button type="submit">Enviar comentario</button>
+    </form>
+</div>
+
+<script>
+const API_URL = "http://localhost:3001/api/comentarios";
+const cursoId = 1; // 🔹 Cambia esto por el ID del curso actual
+const token = localStorage.getItem("token"); // Debe haberse guardado al iniciar sesión
+
+// Función para renderizar estrellas
+function renderStars(num) {
+    return "⭐".repeat(num);
+}
+
+// Cargar comentarios
+async function cargarComentarios() {
+    try {
+        const res = await fetch(`${API_URL}/${cursoId}`);
+        const comentarios = await res.json();
+        const contenedor = document.getElementById("listaComentarios");
+        contenedor.innerHTML = "";
+
+        if (comentarios.length === 0) {
+            contenedor.innerHTML = "<p>No hay comentarios aún. Sé el primero en opinar.</p>";
+            return;
+        }
+
+        comentarios.forEach(c => {
+            const div = document.createElement("div");
+            div.classList.add("comentario");
+            div.innerHTML = `
+                <div class="usuario">${c.usuario}</div>
+                <div class="fecha">${new Date(c.fecha).toLocaleString()}</div>
+                <div class="stars">${renderStars(c.calificacion)}</div>
+                <div class="texto">${c.texto}</div>
+            `;
+            contenedor.appendChild(div);
+        });
+    } catch (err) {
+        console.error("Error al cargar comentarios:", err);
+    }
+}
+
+// Enviar comentario
+document.getElementById("formComentario").addEventListener("submit", async e => {
+    e.preventDefault();
+    const texto = document.getElementById("texto").value;
+    const calificacion = document.getElementById("calificacion").value;
+
+    try {
+        const res = await fetch(`${API_URL}/${cursoId}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}` // 🔹 Requiere estar logueado
+            },
+            body: JSON.stringify({ texto, calificacion })
+        });
+
+        if (!res.ok) throw new Error("Error al enviar comentario");
+
+        document.getElementById("texto").value = "";
+        document.getElementById("calificacion").value = "";
+        cargarComentarios();
+    } catch (err) {
+        console.error(err);
+        alert("No se pudo enviar el comentario");
+    }
+});
+
+// Cargar comentarios al abrir
+cargarComentarios();
+</script>
+
+</body>
+</html>

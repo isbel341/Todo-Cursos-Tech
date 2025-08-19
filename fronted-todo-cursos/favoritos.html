@@ -1,0 +1,212 @@
+/* Página de favoritos para usuarios registrados en Todo Cursos Tech Online
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mis Cursos Favoritos | Todo Curso Tech Online</title>
+  <style>
+    /* Reset básico */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f9fafd;
+      margin: 0;
+      padding: 0;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background-color: #0d6efd;
+      color: white;
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    header h1 {
+      margin: 0;
+      font-weight: 700;
+      font-size: 1.75rem;
+      letter-spacing: 1px;
+    }
+
+    nav {
+      margin-top: 0.5rem;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-right: 1.5rem;
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+
+    nav a:hover,
+    nav a:focus {
+      color: #ffc107;
+      outline: none;
+    }
+
+    main {
+      flex-grow: 1;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      width: 100%;
+    }
+
+    #favoritos-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .favorito-card {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .favorito-card:hover,
+    .favorito-card:focus-within {
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+
+    .curso-nombre {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: #0d6efd;
+      user-select: text;
+    }
+
+    .fecha-guardado {
+      font-size: 0.875rem;
+      color: #555;
+      margin-bottom: 1rem;
+    }
+
+    .btn-eliminar {
+      align-self: flex-start;
+      background-color: #dc3545;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+
+    .btn-eliminar:hover,
+    .btn-eliminar:focus {
+      background-color: #b02a37;
+      outline: none;
+    }
+
+    .mensaje {
+      font-style: italic;
+      color: #777;
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Mis Cursos Favoritos</h1>
+    <nav aria-label="Menú principal">
+      <a href="index.html">Inicio</a>
+       <a href="bienvenida.html">Menu principal</a>
+      <a href="cursos.html">Cursos</a>
+      <a href="favoritos.html" aria-current="page">Favoritos</a>
+    </nav>
+  </header>
+
+  <main>
+    <section aria-labelledby="titulo-favoritos">
+      <h2 id="titulo-favoritos" class="visually-hidden">Lista de cursos favoritos</h2>
+      <div id="favoritos-list" role="list" aria-live="polite">
+        Cargando favoritos...
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Simulación usuario actual; en producción se obtiene dinámicamente
+    const usuarioId = 1;
+
+    async function cargarFavoritos() {
+      const contenedor = document.getElementById('favoritos-list');
+      try {
+        const respuesta = await fetch(`/favoritos/${usuarioId}`);
+        if (!respuesta.ok) throw new Error('No se pudieron cargar los favoritos.');
+
+        const favoritos = await respuesta.json();
+
+        if (favoritos.length === 0) {
+          contenedor.innerHTML = '<p class="mensaje">No tienes cursos favoritos aún.</p>';
+          return;
+        }
+
+        contenedor.innerHTML = ''; // Limpiar
+
+        favoritos.forEach(fav => {
+          const fechaFormateada = new Date(fav.fecha_guardado).toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          });
+
+          const card = document.createElement('article');
+          card.className = 'favorito-card';
+          card.setAttribute('role', 'listitem');
+          card.tabIndex = 0;
+          card.innerHTML = `
+            <div class="curso-nombre">${fav.curso_nombre}</div>
+            <div class="fecha-guardado">Guardado el: ${fechaFormateada}</div>
+            <button class="btn-eliminar" data-id="${fav.id}" aria-label="Eliminar curso ${fav.curso_nombre} de favoritos">Eliminar</button>
+          `;
+
+          contenedor.appendChild(card);
+        });
+
+        // Añadir evento para eliminar favorito
+        contenedor.querySelectorAll('.btn-eliminar').forEach(boton => {
+          boton.addEventListener('click', async () => {
+            const idFavorito = boton.getAttribute('data-id');
+            if (confirm('¿Estás seguro que deseas eliminar este curso de tus favoritos?')) {
+              const respuesta = await fetch(`/favoritos/${idFavorito}`, { method: 'DELETE' });
+              if (respuesta.ok) {
+                cargarFavoritos();
+              } else {
+                alert('No se pudo eliminar el curso favorito.');
+              }
+            }
+          });
+        });
+
+      } catch (error) {
+        contenedor.innerHTML = `<p class="mensaje">Error al cargar favoritos. Intenta nuevamente más tarde.</p>`;
+        console.error(error);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', cargarFavoritos);
+  </script>
+</body>
+</html>

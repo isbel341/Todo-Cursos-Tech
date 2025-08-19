@@ -1,0 +1,231 @@
+/* style.css */
+/* ======== ESTILO GENERAL ======== */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: linear-gradient(to right, #84fab0, #8fd3f4);
+  font-family: 'Segoe UI', sans-serif;
+  color: #333;
+  margin: 0;
+  padding-top: 80px;
+  text-align: center;
+  overflow-x: hidden;
+}
+
+/* ======== HEADER ======== */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #343a40;
+  padding: 10px 20px;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 10000;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+
+/* Logo */
+.logo {
+  width: 120px;
+  animation: flotar 3s infinite ease-in-out;
+  cursor: pointer;
+}
+
+/* ======== MENÚ HAMBURGUESA EN ESQUINA DERECHA ======== */
+.menu-icon {
+  font-size: 30px;
+  color: white;
+  cursor: pointer;
+  padding: 10px;
+  user-select: none;
+  transition: color 0.3s ease;
+  position: relative;
+  z-index: 11000;
+}
+
+.menu-icon:hover {
+  color: #00a8ff;
+}
+
+/* Menú lateral fijo, deslizable desde la derecha */
+.nav-links {
+  display: flex;
+  flex-direction: column;
+  background-color: #343a40;
+  position: fixed;
+  top: 0;
+  right: -260px; /* Oculto fuera de pantalla */
+  height: 100%;
+  width: 240px;
+  overflow-y: auto;
+  padding-top: 80px; /* Para dejar espacio al header */
+  box-shadow: -4px 0 12px rgba(0,0,0,0.3);
+  border-radius: 0 0 0 10px;
+  transition: right 0.3s ease-in-out;
+  z-index: 10500;
+  max-height: 100vh;    /* Limita la altura del menú al alto de la ventana */
+overflow-y: auto;     /* Activa scroll vertical si el contenido supera la altura */
+
+}
+
+/* Mostrar menú (cuando está activo) */
+.nav-links.show-menu {
+  right: 0;
+}
+
+/* Lista del menú */
+.nav-links a {
+  color: white;
+  padding: 15px 20px;
+  text-align: left;
+  text-decoration: none;
+  font-weight: 600;
+  border-left: 4px solid transparent;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  font-size: 1.1em;
+  user-select: none;
+  display: block;
+}
+
+.nav-links a:hover {
+  background-color: #007bff;
+  border-left-color: #00a8ff;
+}
+
+/* ======== MASCOTA ANIMADA ======== */
+.mascota {
+  width: 150px;
+  margin: 20px auto;
+  display: block;
+  animation: flotar 3s infinite ease-in-out;
+}
+
+@keyframes flotar {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
+}
+
+/* ======== TÍTULOS ======== */
+h2 {
+  color: #222;
+  font-size: 2.2em;
+  margin: 20px 0;
+}
+
+/* ======== FORMULARIOS ======== */
+form {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  display: inline-block;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+  width: 90%;
+}
+
+/* ======== CAMPOS Y BOTONES ======== */
+input, button {
+  margin: 10px 0;
+  padding: 12px;
+  width: 90%;
+  border: none;
+  border-radius: 10px;
+  font-size: 1em;
+  outline: none;
+}
+
+button {
+  background-color: #00a8ff;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.3s ease, background-color 0.3s;
+}
+
+button:hover {
+  transform: scale(1.05);
+  background-color: #007bbf;
+}
+
+/* ======== ENLACES GENERALES ======== */
+a {
+  color: #0056b3;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ======== CURSOS ======== */
+.cursos-contenedor {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 25px;
+  margin-top: 30px;
+}
+
+.curso {
+  background: #fff;
+  padding: 20px;
+  border-radius: 15px;
+  width: 250px;
+  text-align: center;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  transition: transform 0.3s ease;
+}
+
+.curso img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.curso:hover {
+  transform: translateY(-5px);
+}
+
+/* ======== NOSOTROS ======== */
+.nosotros {
+  max-width: 700px;
+  margin: 50px auto;
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  text-align: left;
+}
+
+.nosotros h2,
+.nosotros h3 {
+  color: #007bff;
+}
+
+.nosotros p {
+  font-size: 1em;
+  margin: 10px 0;
+  line-height: 1.6;
+}
+
+/* ======== RESPONSIVE ======== */
+@media (max-height: 400px) {
+  .nav-links {
+    max-height: 200px;
+  }
+}
+/* ======== BOTÓN AGREGAR CURSO ======== */
+.boton-agregar {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: white;
+  border-radius: 5px;
+  text-decoration: none;
+}

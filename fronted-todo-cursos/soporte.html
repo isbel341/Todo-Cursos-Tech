@@ -1,0 +1,52 @@
+// Página de soporte para usuarios registrados en Todo Cursos Tech Online
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Soporte - Todo Cursos Tech Online</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <script>
+    if (!localStorage.getItem('nombre')) {
+      alert('Debes iniciar sesión para acceder al soporte.');
+      window.location.href = 'login.html';
+    }
+  </script>
+
+  <div class="navbar">
+    <span class="menu-icon" onclick="toggleMenu()">☰</span>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Inicio</a>
+      <a href="cursos.html">Cursos</a>
+      <a href="perfil.html">Mi perfil</a>
+      <a href="carrito_compras.html">Carrito</a>
+      <a href="ayuda.html">Ayuda</a>
+      <a href="#" onclick="cerrarSesion()">Cerrar sesión</a>
+    </div>
+  </div>
+
+  <main>
+    <h2>Centro de Soporte</h2>
+    <form id="formSoporte">
+      <label for="asunto">Asunto:</label>
+      <input type="text" id="asunto" name="asunto" required>
+
+      <label for="mensaje">Mensaje:</label>
+      <textarea id="mensaje" name="mensaje" rows="5" required></textarea>
+
+      <button type="submit">Enviar</button>
+    </form>
+    <div id="respuestaSoporte"></div>
+  </main>
+
+  <script src="script.js"></script>
+  <script>
+    document.getElementById('formSoporte').addEventListener('submit', function(e) {
+      e.preventDefault();
+      document.getElementById('respuestaSoporte').innerText = "¡Tu mensaje ha sido enviado al equipo de soporte!";
+      this.reset();
+    });
+  </script>
+</body>
+</html>

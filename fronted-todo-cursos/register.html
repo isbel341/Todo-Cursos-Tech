@@ -1,0 +1,62 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro - Todo Cursos</title>
+  <link rel="stylesheet" href="style.css"> <!-- Hoja de estilos -->
+  <link rel="icon" type="image/png" href="favicon.png">
+
+</head>
+<body>
+
+
+  <!-- Mascota animada -->
+  <img src="cursos_img/curiox.gif" alt="Curiox" class="mascota">
+
+  <h2>Registro de usuario</h2>
+
+  <form id="formRegistro">
+    <input type="text" id="nombre" placeholder="Nombre completo" required><br>
+    <input type="email" id="email" placeholder="Correo electrónico" required><br>
+    <input type="password" id="password" placeholder="Contraseña" required><br>
+    <button type="submit">Registrarse</button>
+  </form>
+
+  <p>¿Ya tienes cuenta? <a href="index.html">Inicia sesión</a></p>
+
+  <script>
+    const form = document.getElementById('formRegistro');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const data = {
+        nombre: document.getElementById('nombre').value,
+        email: document.getElementById('email').value,
+        password: document.getElementById('password').value
+      };
+
+      try {
+        const res = await fetch('http://localhost:3001/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const json = await res.json();
+
+        if (json.message) {
+          alert("✅ Registro exitoso. Ahora inicia sesión.");
+          window.location.href = "index.html";
+        } else {
+          alert(json.error || "❌ Error al registrarse.");
+        }
+      } catch (err) {
+        alert("🚫 Error de conexión con el servidor");
+        console.error(err);
+      }
+    });
+  </script>
+
+</body>
+</html>

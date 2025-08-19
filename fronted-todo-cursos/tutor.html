@@ -1,0 +1,39 @@
+/* Página de tutor para usuarios con rol de tutor en Todo Cursos Tech Online */
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel del Tutor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <img src="logo.png" alt="Logo" class="logo">
+    <h2>Área del Tutor - Todo Cursos Tech</h2>
+  </header>
+
+  <main>
+    <p id="mensaje">Cargando datos...</p>
+    <button onclick="cerrarSesion()">Cerrar sesión</button>
+  </main>
+
+  <script>
+    const rol = localStorage.getItem('rol');
+    const nombre = localStorage.getItem('nombre');
+
+    if (rol !== '2') {
+      alert('Acceso no autorizado');
+      window.location.href = 'login.html';
+    } else {
+      document.getElementById('mensaje').innerText = `Hola, ${nombre}. Bienvenido al área de tutor.`;
+    }
+
+    function cerrarSesion() {
+      localStorage.clear();
+      window.location.href = 'login.html';
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mis Cursos - Todo Cursos Tech Online</title>
+
+  <!-- Fuentes e íconos -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    /* Reset y base */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0; padding: 0;
+      font-family: 'Roboto', sans-serif;
+      background: #f4f6f9;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    /* Navbar */
+    header {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 24px;
+      background-color: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      margin-bottom: 40px;
+    }
+    .logo img {
+      height: 50px;
+    }
+    nav {
+      display: flex;
+      gap: 28px;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    nav a {
+      text-decoration: none;
+      color: #5f2eea;
+      position: relative;
+      padding-bottom: 4px;
+      transition: color 0.25s;
+    }
+    nav a::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      width: 0;
+      background: #5f2eea;
+      transition: width 0.3s ease;
+      border-radius: 2px;
+    }
+    nav a:hover {
+      color: #4b22b8;
+    }
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    /* Título */
+    h1 {
+      font-size: 2.6rem;
+      font-weight: 700;
+      margin-bottom: 32px;
+      color: #5f2eea;
+      max-width: 1200px;
+      width: 100%;
+      text-align: center;
+    }
+
+    /* Grid de cursos */
+    .cursos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 28px;
+      max-width: 1200px;
+      width: 100%;
+    }
+
+    /* Tarjeta curso */
+    .curso-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 6px 18px rgba(95, 46, 234, 0.15);
+      overflow: hidden;
+      cursor: pointer;
+      transition: box-shadow 0.3s ease, transform 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      text-decoration: none;
+      color: inherit;
+    }
+    .curso-card:hover {
+      box-shadow: 0 12px 30px rgba(95, 46, 234, 0.35);
+      transform: translateY(-6px);
+    }
+
+    /* Imagen del curso */
+    .curso-img {
+      width: 100%;
+      height: 180px;
+      background: #dbeafe;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 3rem;
+      font-weight: 700;
+      color: #5f2eea;
+      user-select: none;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .curso-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Contenido texto */
+    .curso-info {
+      padding: 20px 24px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .curso-nombre {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #5f2eea;
+      margin: 0 0 8px 0;
+      user-select: text;
+    }
+    .curso-desc {
+      font-size: 0.95rem;
+      color: #475569;
+      margin: 0;
+      user-select: text;
+    }
+
+    /* Mensaje si no hay cursos */
+    .mensaje-sin-cursos {
+      margin-top: 60px;
+      font-size: 1.3rem;
+      color: #64748b;
+      text-align: center;
+      max-width: 600px;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      header {
+        flex-direction: column;
+        gap: 12px;
+      }
+      nav {
+        gap: 16px;
+        font-size: 0.95rem;
+      }
+      h1 {
+        font-size: 2rem;
+        margin-bottom: 24px;
+      }
+      .curso-img {
+        height: 140px;
+        font-size: 2.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="index.html" class="logo" aria-label="Volver al inicio">
+      <img src="cursos_img/logo.png" alt="Logo Todo Cursos Tech Online" />
+    </a>
+    <nav aria-label="Navegación principal">
+      <a href="index.html">Inicio</a>
+      <a href="ayuda.html">Ayuda</a>
+      <a href="nosotros.html">¿Quiénes somos?</a>
+    </nav>
+  </header>
+
+  <h1>Mis Cursos</h1>
+
+  <main class="cursos-grid" id="cursosContainer" role="list">
+    <!-- Aquí se inyectan las tarjetas de cursos -->
+  </main>
+
+  <p class="mensaje-sin-cursos" id="sinCursosMsg" style="display:none;">
+    No tienes cursos inscritos aún. ¡Explora y comienza uno hoy!
+  </p>
+
+  <script>
+    // Ejemplo estático de cursos
+    const cursos = [
+      { id: 1, nombre: 'Programación Básica', descripcion: 'Aprende a programar desde cero con videos prácticos.', imagen: 'cursos_img/pro.jpg' },
+      { id: 2, nombre: 'Diseño Web', descripcion: 'Crea sitios web modernos y responsivos con HTML, CSS y JS.', imagen: 'cursos_img/pag web.jpg' },
+      { id: 3, nombre: 'Bases de Datos SQL', descripcion: 'Gestiona y consulta bases de datos usando SQL.', imagen: 'cursos_img/mysql.jpg' },
+      { id: 4, nombre: 'Python para Ciencia de Datos', descripcion: 'Analiza datos y crea modelos con Python.', imagen: 'cursos_img/pyton.jpg' },
+      { id: 5, nombre: 'JavaScript Avanzado', descripcion: 'Domina JS con ES6+ y desarrollo frontend moderno.', imagen: 'cursos_img/java.jpg' },
+    ];
+
+    const container = document.getElementById('cursosContainer');
+    const sinCursosMsg = document.getElementById('sinCursosMsg');
+
+    if (cursos.length === 0) {
+      sinCursosMsg.style.display = 'block';
+      container.style.display = 'none';
+    } else {
+      sinCursosMsg.style.display = 'none';
+      container.style.display = 'grid';
+
+      cursos.forEach(curso => {
+        // Crear enlace que envuelve toda la tarjeta para hacerla clickeable
+        const link = document.createElement('a');
+        link.classList.add('curso-card');
+        link.setAttribute('role', 'listitem');
+        link.href = '#'; // por defecto
+
+        // Si usuario tiene token, lleva a página de curso con query string
+        // Si no, redirige a login.html
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const token = localStorage.getItem('token');
+          if (!token) {
+            alert('Debes iniciar sesión para acceder a este curso.');
+            window.location.href = 'index.html';
+          } else {
+            window.location.href = `ver_curso.html?id=${curso.id}`;
+          }
+        });
+
+        // Imagen con placeholder si no hay imagen real
+        const imgDiv = document.createElement('div');
+        imgDiv.classList.add('curso-img');
+        if (curso.imagen) {
+          const img = document.createElement('img');
+          img.src = curso.imagen;
+          img.alt = curso.nombre;
+          imgDiv.appendChild(img);
+        } else {
+          imgDiv.textContent = curso.nombre.charAt(0).toUpperCase();
+        }
+
+        // Info del curso
+        const infoDiv = document.createElement('div');
+        infoDiv.classList.add('curso-info');
+
+        const nombre = document.createElement('h2');
+        nombre.classList.add('curso-nombre');
+        nombre.textContent = curso.nombre;
+
+        const desc = document.createElement('p');
+        desc.classList.add('curso-desc');
+        desc.textContent = curso.descripcion;
+
+        infoDiv.appendChild(nombre);
+        infoDiv.appendChild(desc);
+
+        link.appendChild(imgDiv);
+        link.appendChild(infoDiv);
+
+        container.appendChild(link);
+      });
+    }
+  </script>
+</body>
+</html>

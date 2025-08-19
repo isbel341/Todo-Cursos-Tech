@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Panel de Administrador - Todo Cursos Tech</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; background: #f5f7fa; color: #1f2d3a; }
+    .navbar { background-color: #333; display: flex; justify-content: flex-start; align-items: center; }
+    .navbar a { color: white; padding: 14px 20px; text-decoration: none; display: block; }
+    .navbar a:hover { background-color: #575757; }
+    .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; gap: 30px; display: flex; flex-wrap: wrap; }
+    .panel { flex: 1 1 300px; background: white; border-radius: 12px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+    .panel h3 { margin-top: 0; color: #5f2eea; }
+    .flex-row { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
+    label { display: block; margin-bottom: 6px; font-weight: 600; }
+    input, select, textarea { width: 100%; padding: 10px 12px; margin-bottom: 12px; border: 1px solid #d1d9e6; border-radius: 8px; font-size: 0.95rem; resize: vertical; }
+    button { background: #5f2eea; color: white; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: filter .2s; }
+    button:hover { filter: brightness(1.1); }
+    .small-btn { padding: 6px 12px; font-size: 0.85rem; border-radius: 6px; margin-left:5px; }
+    .curso-list, .usuario-list { max-height: 300px; overflow-y: auto; margin-top: 10px; }
+    .curso-item, .usuario-item { border-bottom: 1px solid #e2e8f0; padding: 8px 0; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .badge { background: #10b981; color: white; padding: 4px 10px; border-radius: 999px; font-size: 0.7rem; margin-left: 6px; }
+    .info-line { font-size: 0.9rem; margin: 10px; }
+    #panel-evaluaciones { display: none; margin-top: 20px; }
+    .evaluacion-item { border-bottom: 1px solid #eee; padding: 8px 0; display: flex; justify-content: space-between; align-items: start; gap: 10px; }
+    .muted { color:#6b7280; font-size: .85rem; }
+    .danger { background:#e11d48 !important; }
+    .secondary { background:#64748b !important; }
+    .row { display:flex; gap:10px; }
+    .row > * { flex:1; }
+    .help { font-size:.85rem; color:#6b7280; margin-top:-6px; margin-bottom:10px;}
+    #msgEval { margin-top:8px; font-size:.9rem; }
+    #msgEval.ok { color:#059669; } 
+    #msgEval.err { color:#dc2626; }
+  </style>
+</head>
+<body>
+
+  <div class="navbar">
+    <a href="admin.html">Inicio</a>
+    <a href="agregar_video.html">Agregar Videos</a>
+    <a href="log_actividad.html">login de actividades</a>
+    <a href="#" onclick="cerrarSesion()">Cerrar Sesión</a>
+  </div>
+
+  <div class="info-line" id="saludoAdmin"></div>
+
+  <div class="container">
+    <!-- CREAR CURSO -->
+    <div class="panel" style="flex:2 1 500px;">
+      <h3>Agregar / Crear Curso</h3>
+      <p>Llena los datos para crear un curso nuevo.</p>
+      <form id="formCurso">
+        <label for="titulo">Título</label>
+        <input type="text" id="titulo" required placeholder="Ej: Programación en JavaScript">
+
+        <label for="descripcion">Descripción</label>
+        <textarea id="descripcion" rows="3" required placeholder="Descripción breve del curso"></textarea>
+
+        <label for="categoria">Categoría</label>
+        <select id="categoria" required>
+          <option value="">Cargando categorías...</option>
+        </select>
+
+        <label for="nivel">Nivel</label>
+        <select id="nivel" required>
+          <option value="">Selecciona nivel</option>
+          <option value="Principiante">Principiante</option>
+          <option value="Intermedio">Intermedio</option>
+          <option value="Avanzado">Avanzado</option>
+        </select>
+
+        <label for="video_url">Video URL</label>
+        <input type="url" id="video_url" name="video_url" placeholder="https://www.youtube.com/watch?v=..." required>
+
+        <button type="submit">Crear curso</button>
+      </form>
+      <div id="msgCurso" style="margin-top:12px; color: green;"></div>
+    </div>
+
+    <!-- LISTA CURSOS -->
+    <div class="panel" style="flex:1 1 300px;">
+      <h3>Cursos existentes</h3>
+      <div id="form-editar-curso" style="display:none; margin-top:20px;"></div>
+      <div class="curso-list" id="listaCursos"></div>
+    </div>
+
+    <!-- LISTA USUARIOS -->
+    <div class="panel" style="flex:1 1 300px;">
+      <h3>Usuarios</h3>
+      <div class="usuario-list" id="listaUsuarios"></div>
+    </div>
+  </div>
+
+  <!-- PANEL EVALUACIONES -->
+  <div class="container" id="panel-evaluaciones">
+    <div class="panel" style="flex:1 1 100%;">
+      <div class="flex-row">
+        <div style="flex:1; min-width:260px;">
+          <label for="eval-curso-select">Curso</label>
+          <select id="eval-curso-select">
+            <option value="">Selecciona curso...</option>
+          </select>
+          <div class="help">Actual: <b id="eval-curso-titulo">—</b></div>
+        </div>
+        <div style="margin-left:auto">
+          <button class="secondary small-btn" onclick="limpiarFormularioEval()">Limpiar</button>
+          <button class="danger small-btn" onclick="cerrarPanelEvaluaciones()">Cerrar</button>
+        </div>
+      </div>
+
+      <div id="listaEvaluaciones"></div>
+
+      <div id="adminFormulario" style="margin-top:16px;">
+        <h3>Agregar / Editar Pregunta</h3>
+        <form id="formEvaluacion">
+          <input type="hidden" id="pregunta-id">
+
+          <label>Pregunta</label>
+          <textarea id="pregunta-texto" rows="3" required></textarea>
+
+          <div class="row">
+            <div>
+              <label>Opción 1</label>
+              <input type="text" id="opcion1" required>
+            </div>
+            <div>
+              <label>Opción 2</label>
+              <input type="text" id="opcion2" required>
+            </div>
+            <div>
+              <label>Opción 3</label>
+              <input type="text" id="opcion3" required>
+            </div>
+          </div>
+
+          <label>Respuesta Correcta</label>
+          <select id="correcta" required>
+            <option value="">Selecciona la correcta</option>
+            <option value="opcion1">Opción 1</option>
+            <option value="opcion2">Opción 2</option>
+            <option value="opcion3">Opción 3</option>
+          </select>
+          <div class="help">Se guardará el <b>texto</b> de la opción elegida en <code>opcion_correcta</code>.</div>
+
+          <label>Puntaje</label>
+          <input type="number" id="puntaje" min="1" value="1" required>
+
+          <div class="row">
+            <button type="submit">Guardar Pregunta</button>
+            <button type="button" class="secondary" onclick="limpiarFormularioEval()">Cancelar edición</button>
+          </div>
+        </form>
+        <div id="msgEval"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================
+    //   AUTH Y SALUDO
+    // ==========================
+    const rol = localStorage.getItem('rol'); // "3"=Admin
+    const nombre = localStorage.getItem('nombre');
+    const token = localStorage.getItem('token');
+    const userId = parseInt(localStorage.getItem('user_id'));
+
+    if (!token || rol !== '3') {
+      alert('Acceso no autorizado. Debes iniciar sesión como administrador.');
+      window.location.href = 'index.html';
+      throw new Error('No autorizado');
+    }
+    document.getElementById('saludoAdmin').innerText = `Hola, ${nombre}`;
+
+    // ==========================
+    //   HELPERS
+    // ==========================
+    function cerrarSesion(){ localStorage.clear(); window.location.href='index.html'; }
+    function escapeHtml(str){ return (str??'').toString().replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
+    function unescapeHtml(str){ const d=document.createElement('div'); d.innerHTML=str; return d.textContent || d.innerText || ''; }
+    function setMsgEval(text, ok=false){ const el=document.getElementById('msgEval'); el.className= ok?'ok':'err'; el.textContent=text; setTimeout(()=>{el.textContent=''; el.className='';}, 3500); }
+
+    // Cache global de cursos (para lista y dropdown de evaluaciones)
+    let cursosCache = [];
+
+    // ==========================
+    //   CATEGORÍAS
+    // ==========================
+    async function cargarCategorias() {
+      try {
+        const res = await fetch('http://localhost:3001/api/categorias');
+        const cats = await res.json();
+        const sel = document.getElementById('categoria');
+        sel.innerHTML = '<option value="">Selecciona categoría</option>';
+        cats.forEach(c => {
+          const o = document.createElement('option');
+          o.value = c.id;
+          o.innerText = c.nombre;
+          sel.appendChild(o);
+        });
+      } catch (e) {
+        console.error('No se pudieron cargar categorías', e);
+        document.getElementById('categoria').innerHTML = '<option value="">Error cargando</option>';
+      }
+    }
+
+    // ==========================
+    //   CURSOS
+    // ==========================
+    async function cargarCursos() {
+      try {
+        const res = await fetch('http://localhost:3001/api/cursos');
+        const cursos = await res.json();
+        cursosCache = Array.isArray(cursos) ? cursos : [];
+        poblarEvalSelect();
+        const cont = document.getElementById('listaCursos');
+        cont.innerHTML = '';
+        if (cursosCache.length === 0) {
+          cont.innerHTML = '<p>No hay cursos.</p>';
+          return;
+        }
+        cursosCache.forEach(c => {
+          const div = document.createElement('div');
+          div.className = 'curso-item';
+          div.innerHTML = `
+            <div style="flex:1">
+              <strong>${escapeHtml(c.titulo)}</strong><br>
+              <small class="muted">${escapeHtml(c.categoria || '')} • ${escapeHtml(c.nivel || '')}</small>
+            </div>
+            <div>
+              <button class="btn-editar small-btn"
+                   data-id="${c.id}"
+                   data-titulo="${escapeHtml(c.titulo)}"
+                   data-descripcion="${escapeHtml(c.descripcion||'')}"
+                   data-categoria="${escapeHtml(c.categoria || '')}"
+                   data-nivel="${escapeHtml(c.nivel || '')}"
+                   data-video="${escapeHtml(c.video_url || '')}">Editar</button>
+              <button class="small-btn" onclick='verEvaluaciones(${c.id}, ${JSON.stringify(c.titulo)})'>Ver Evaluaciones</button>
+            </div>
+          `;
+          cont.appendChild(div);
+        });
+      } catch (err) {
+        console.error('Error cargando cursos', err);
+        document.getElementById('listaCursos').innerHTML = '<p>Error al cargar.</p>';
+      }
+    }
+
+    function poblarEvalSelect(){
+      const sel = document.getElementById('eval-curso-select');
+      if(!sel) return;
+      const prev = sel.value;
+      sel.innerHTML = '<option value="">Selecciona curso...</option>';
+      cursosCache.forEach(c=>{
+        const o = document.createElement('option');
+        o.value = c.id;
+        o.textContent = c.titulo;
+        sel.appendChild(o);
+      });
+      if (cursoSeleccionadoId) sel.value = String(cursoSeleccionadoId);
+      else if (prev) sel.value = prev;
+    }
+
+    document.getElementById('eval-curso-select').addEventListener('change',(e)=>{
+      const val = parseInt(e.target.value,10);
+      if(!val){ return; }
+      cursoSeleccionadoId = val;
+      const curso = cursosCache.find(x=>x.id==val);
+      cursoSeleccionadoTitulo = curso? curso.titulo : '';
+      document.getElementById('eval-curso-titulo').innerText = cursoSeleccionadoTitulo || '—';
+      cargarEvaluaciones();
+    });
+
+    document.addEventListener('click', async (e) => {
+      if (!e.target.classList.contains('btn-editar')) return;
+      const btn = e.target;
+      const cursoId = btn.dataset.id;
+      const cursoTitulo = unescapeHtml(btn.dataset.titulo);
+      const cursoDescripcion = unescapeHtml(btn.dataset.descripcion);
+      const cursoCategoriaNombre = unescapeHtml(btn.dataset.categoria);
+      const cursoNivel = unescapeHtml(btn.dataset.nivel);
+      const cursoVideo = unescapeHtml(btn.dataset.video);
+      const contenedor = document.getElementById('form-editar-curso');
+
+      let categorias = [];
+      try { const res = await fetch('http://localhost:3001/api/categorias'); categorias = await res.json(); } catch(e){}
+
+      let opciones = '<option value="">Selecciona categoría</option>';
+      categorias.forEach(c => { opciones += `<option value="${c.id}" ${c.nombre===cursoCategoriaNombre?'selected':''}>${c.nombre}</option>`; });
+
+      contenedor.innerHTML = `
+        <h3>Editar Curso</h3>
+        <input type="hidden" id="curso-id" value="${cursoId}">
+        <label>Título</label>
+        <input type="text" id="curso-titulo" value="${cursoTitulo}">
+        <label>Descripción</label>
+        <textarea id="curso-descripcion">${cursoDescripcion}</textarea>
+        <label>Categoría</label>
+        <select id="curso-categoria">${opciones}</select>
+        <label>Nivel</label>
+        <select id="curso-nivel">
+          <option value="Principiante" ${cursoNivel==='Principiante'?'selected':''}>Principiante</option>
+          <option value="Intermedio" ${cursoNivel==='Intermedio'?'selected':''}>Intermedio</option>
+          <option value="Avanzado" ${cursoNivel==='Avanzado'?'selected':''}>Avanzado</option>
+        </select>
+        <label>Video URL</label>
+        <input type="text" id="curso-video" value="${cursoVideo}">
+        <button onclick="guardarCambios()">Guardar cambios</button>
+      `;
+      contenedor.style.display='block';
+    });
+
+    async function guardarCambios() {
+      const id = document.getElementById('curso-id').value;
+      const titulo = document.getElementById('curso-titulo').value.trim();
+      const descripcion = document.getElementById('curso-descripcion').value.trim();
+      const categoria_id = parseInt(document.getElementById('curso-categoria').value);
+      const nivel = document.getElementById('curso-nivel').value;
+      const video_url = document.getElementById('curso-video').value.trim();
+      if (!titulo||!descripcion||!categoria_id||!nivel){ alert('Completa todos los campos'); return; }
+      try {
+        const res = await fetch('http://localhost:3001/api/cursos/'+id,{
+          method:'PUT',
+          headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+          body: JSON.stringify({titulo,descripcion,categoria_id,nivel,video_url})
+        });
+        if(!res.ok){ const t=await res.text(); throw new Error(`Error ${res.status}: ${t}`); }
+        alert('Curso actualizado correctamente');
+        cargarCursos();
+        document.getElementById('form-editar-curso').style.display='none';
+      } catch(err){ alert('Error al actualizar curso: '+err.message); }
+    }
+
+    // Crear curso
+    document.getElementById('formCurso').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const titulo = document.getElementById('titulo').value.trim();
+      const descripcion = document.getElementById('descripcion').value.trim();
+      const categoria_id = parseInt(document.getElementById('categoria').value);
+      const nivel = document.getElementById('nivel').value;
+      const video_url = document.getElementById('video_url').value;
+
+      if (!titulo || !descripcion || !categoria_id || !nivel) {
+        alert('Completa todos los campos obligatorios.');
+        return;
+      }
+
+      try {
+        const res = await fetch('http://localhost:3001/api/cursos', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify({
+            titulo,
+            descripcion,
+            categoria_id,
+            nivel,
+            video_url,
+            creado_por: userId
+          })
+        });
+        const json = await res.json();
+        if (res.ok) {
+          document.getElementById('msgCurso').innerText = 'Curso creado correctamente.';
+          document.getElementById('formCurso').reset();
+          await cargarCursos();
+        } else {
+          document.getElementById('msgCurso').innerText = json.error || 'Error creando curso.';
+        }
+      } catch (err) {
+        console.error('Error al crear curso', err);
+        document.getElementById('msgCurso').innerText = 'Error de conexión.';
+      }
+    });
+
+    // ==========================
+    //   USUARIOS
+    // ==========================
+    async function cargarUsuarios() {
+      try {
+        const res = await fetch('http://localhost:3001/api/usuarios/todos', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const usuarios = await res.json();
+        const cont = document.getElementById('listaUsuarios');
+        cont.innerHTML = '';
+        if (!Array.isArray(usuarios) || usuarios.length === 0) {
+          cont.innerHTML = '<p>No hay usuarios.</p>';
+          return;
+        }
+        usuarios.forEach(u => {
+          const div = document.createElement('div');
+          div.className = 'usuario-item';
+          div.innerHTML = `
+            ${escapeHtml(u.nombre)} (${escapeHtml(u.email || 'sin email')})
+            <span class="badge">
+              ${u.rol_id === 3 ? 'Admin' : u.rol_id === 2 ? 'Tutor' : 'Estudiante'}
+            </span>
+          `;
+          cont.appendChild(div);
+        });
+      } catch (err) {
+        console.error('Error cargando usuarios', err);
+        document.getElementById('listaUsuarios').innerHTML = '<p>Error al cargar usuarios.</p>';
+      }
+    }
+
+    // ==========================
+    //   EVALUACIONES (CRUD)
+    // ==========================
+    let cursoSeleccionadoId = null;
+    let cursoSeleccionadoTitulo = '';
+
+    function verEvaluaciones(curso_id, titulo){
+      document.getElementById('panel-evaluaciones').style.display='block';
+      poblarEvalSelect();
+
+      if (curso_id){
+        cursoSeleccionadoId = curso_id;
+        cursoSeleccionadoTitulo = titulo || '';
+        const sel = document.getElementById('eval-curso-select');
+        if (sel) sel.value = String(cursoSeleccionadoId);
+      } else if (!cursoSeleccionadoId && cursosCache.length){
+        cursoSeleccionadoId = cursosCache[0].id;
+        cursoSeleccionadoTitulo = cursosCache[0].titulo;
+        const sel = document.getElementById('eval-curso-select');
+        if (sel) sel.value = String(cursoSeleccionadoId);
+      }
+
+      document.getElementById('eval-curso-titulo').innerText = cursoSeleccionadoTitulo || '—';
+      cargarEvaluaciones();
+    }
+
+    function cerrarPanelEvaluaciones(){
+      document.getElementById('panel-evaluaciones').style.display='none';
+      document.getElementById('listaEvaluaciones').innerHTML='';
+      limpiarFormularioEval();
+      cursoSeleccionadoId = null;
+      cursoSeleccionadoTitulo = '';
+      document.getElementById('eval-curso-titulo').innerText = '—';
+      const sel = document.getElementById('eval-curso-select');
+      if (sel) sel.value = '';
+    }
+
+    function limpiarFormularioEval(){
+      document.getElementById('formEvaluacion').reset();
+      document.getElementById('pregunta-id').value='';
+      document.getElementById('correcta').value='';
+      document.getElementById('puntaje').value = 1;
+    }
+
+    async function cargarEvaluaciones(){
+      if(!cursoSeleccionadoId) return;
+      try{
+        const res = await fetch(`http://localhost:3001/api/evaluaciones?curso_id=${cursoSeleccionadoId}`,{
+          headers:{'Authorization':'Bearer '+token}
+        });
+        const evals = await res.json();
+        const cont = document.getElementById('listaEvaluaciones');
+        cont.innerHTML='';
+        if(!Array.isArray(evals) || !evals.length){
+          cont.innerHTML='<p>No hay evaluaciones.</p>';
+          return;
+        }
+        cont.onclick = null; // limpiar handler anterior
+
+        evals.forEach(e=>{
+          const div = document.createElement('div');
+          div.className='evaluacion-item';
+          div.innerHTML=`
+            <div style="flex:1">
+              <strong>${escapeHtml(e.pregunta)}</strong><br>
+              1) ${escapeHtml(e.opcion1)}<br>
+              2) ${escapeHtml(e.opcion2)}<br>
+              3) ${escapeHtml(e.opcion3)}<br>
+              <span class="muted">Correcta: ${escapeHtml(e.opcion_correcta)} • Puntaje: ${escapeHtml(e.puntaje)}</span>
+            </div>
+            <div>
+              <button class="small-btn btn-edit-eval">Editar</button>
+              <button class="small-btn danger btn-del-eval">Eliminar</button>
+            </div>
+          `;
+
+          const btnEdit = div.querySelector('.btn-edit-eval');
+          btnEdit.dataset.id = e.id;
+          btnEdit.dataset.pregunta = e.pregunta || '';
+          btnEdit.dataset.opcion1 = e.opcion1 || '';
+          btnEdit.dataset.opcion2 = e.opcion2 || '';
+          btnEdit.dataset.opcion3 = e.opcion3 || '';
+          btnEdit.dataset.correcta = e.opcion_correcta || '';
+          btnEdit.dataset.puntaje = e.puntaje || 1;
+
+          const btnDel = div.querySelector('.btn-del-eval');
+          btnDel.dataset.id = e.id;
+
+          cont.appendChild(div);
+        });
+
+        cont.onclick = async (ev)=>{
+          const t = ev.target;
+          if (t.classList.contains('btn-edit-eval')){
+            const { id, pregunta, opcion1, opcion2, opcion3, correcta, puntaje } = t.dataset;
+            document.getElementById('pregunta-id').value = id;
+            document.getElementById('pregunta-texto').value = pregunta;
+            document.getElementById('opcion1').value = opcion1;
+            document.getElementById('opcion2').value = opcion2;
+            document.getElementById('opcion3').value = opcion3;
+
+            let key = '';
+            if (correcta === opcion1) key = 'opcion1';
+            else if (correcta === opcion2) key = 'opcion2';
+            else if (correcta === opcion3) key = 'opcion3';
+            document.getElementById('correcta').value = key;
+            document.getElementById('puntaje').value = parseInt(puntaje||1,10);
+          } else if (t.classList.contains('btn-del-eval')){
+            const id = t.dataset.id;
+            eliminarPregunta(id);
+          }
+        };
+
+      }catch(err){
+        console.error(err);
+        document.getElementById('listaEvaluaciones').innerHTML='<p>Error cargando evaluaciones.</p>';
+      }
+    }
+
+    document.getElementById('formEvaluacion').addEventListener('submit', async e=>{
+      e.preventDefault();
+      if(!cursoSeleccionadoId){ alert('Selecciona un curso en el selector.'); return; }
+
+      const id = document.getElementById('pregunta-id').value;
+      const pregunta = document.getElementById('pregunta-texto').value.trim();
+      const opcion1 = document.getElementById('opcion1').value.trim();
+      const opcion2 = document.getElementById('opcion2').value.trim();
+      const opcion3 = document.getElementById('opcion3').value.trim();
+      const correctaKey = document.getElementById('correcta').value;
+      const puntaje = parseInt(document.getElementById('puntaje').value,10);
+
+      if(!pregunta || !opcion1 || !opcion2 || !opcion3 || !correctaKey || !puntaje){
+        setMsgEval('Completa todos los campos.', false);
+        return;
+      }
+
+      const opcion_correcta = (correctaKey === 'opcion1') ? opcion1 : (correctaKey === 'opcion2') ? opcion2 : opcion3;
+
+      const metodo = id ? 'PUT' : 'POST';
+      const endpoint = id ? `http://localhost:3001/api/evaluaciones/${id}` : 'http://localhost:3001/api/evaluaciones';
+
+      try{
+        const res = await fetch(endpoint,{
+          method:metodo,
+          headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+          body: JSON.stringify({
+            curso_id: cursoSeleccionadoId,
+            pregunta,
+            opcion1,
+            opcion2,
+            opcion3,
+            opcion_correcta,
+            puntaje
+          })
+        });
+        if(!res.ok){
+          const ct = res.headers.get('content-type')||'';
+          const txt = ct.includes('application/json') ? (await res.json()).error || JSON.stringify(await res.json()) : await res.text();
+          throw new Error(txt || 'Error en el guardado');
+        }
+        limpiarFormularioEval();
+        setMsgEval('Pregunta guardada correctamente.', true);
+        cargarEvaluaciones();
+      }catch(err){
+        console.error(err);
+        setMsgEval('Error guardando pregunta: ' + err.message, false);
+        // Este error "Cannot POST /api/evaluaciones" indica que el backend no tiene montada la ruta.
+        // Verifica en tu server que uses: app.use('/api/evaluaciones', require('./routes/evaluaciones'));
+      }
+    });
+
+    async function eliminarPregunta(id){
+      if(!confirm('¿Seguro que quieres eliminar esta pregunta?')) return;
+      try{
+        const res = await fetch(`http://localhost:3001/api/evaluaciones/${id}`,{
+          method:'DELETE',
+          headers:{'Authorization':'Bearer '+token}
+        });
+        if(!res.ok){
+          const ct = res.headers.get('content-type')||'';
+          const txt = ct.includes('application/json') ? (await res.json()).error || JSON.stringify(await res.json()) : await res.text();
+          throw new Error(txt || 'Error eliminando');
+        }
+        cargarEvaluaciones();
+      }catch(err){
+        console.error(err);
+        alert('Error eliminando pregunta: ' + err.message);
+      }
+    }
+
+    // ==========================
+    //   INICIO
+    // ==========================
+    cargarCategorias();
+    cargarCursos();
+    cargarUsuarios();
+  </script>
+</body>
+</html>

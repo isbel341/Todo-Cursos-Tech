@@ -1,0 +1,185 @@
+// Página de categorías de cursos para usuarios registrados en Todo Cursos Tech Online
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Categorías de Cursos - Todo Cursos Tech Online</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="favicon.png" type="image/png">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+      color: #333;
+      min-height: 100vh;
+    }
+
+    header {
+      background-color: #fff;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo {
+      font-weight: bold;
+      font-size: 20px;
+      color: #00796b;
+    }
+
+    .menu-icon {
+      display: none;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    nav {
+      display: flex;
+      gap: 14px;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      padding: 8px 12px;
+      border-radius: 6px;
+      transition: background 0.3s;
+    }
+
+    nav a:hover {
+      background-color: #f0f0f0;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 28px;
+      color: #00796b;
+    }
+
+    .categoria-item {
+      background-color: #fff;
+      margin: 12px 0;
+      padding: 18px 20px;
+      border-radius: 10px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+      transition: transform 0.2s;
+    }
+
+    .categoria-item a {
+      text-decoration: none;
+      color: #00796b;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .categoria-item:hover {
+      transform: scale(1.02);
+    }
+
+    @media (max-width: 768px) {
+      nav {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        background-color: #fff;
+        margin-top: 10px;
+      }
+
+      nav.active {
+        display: flex;
+      }
+
+      .menu-icon {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- VALIDACIÓN DE SESIÓN -->
+  <script>
+    if (!localStorage.getItem('nombre')) {
+      alert('Debes iniciar sesión para ver las categorías.');
+      window.location.href = 'login.html';
+    }
+  </script>
+
+  <!-- NAVBAR -->
+  <header>
+    <div class="logo">Todo Cursos</div>
+    <div class="menu-icon" onclick="toggleMenu()">☰</div>
+    <nav id="navLinks">
+       <a href="bienvenida.html">Menu principal</a>
+      <a href="cursos.html">Cursos</a>
+      <a href="perfil.html">Mi perfil</a>
+      <a href="suscripcion.html">suscripcion</a>
+      <a href="ayuda.html">Ayuda</a>
+      <a href="soporte.html">Soporte</a>
+      <a href="#" onclick="cerrarSesion()">Cerrar sesión</a>
+    </nav>
+  </header>
+
+  <!-- CONTENIDO -->
+  <main>
+    <h2>Categorías de Cursos</h2>
+    <div id="listaCategorias">Cargando categorías...</div>
+  </main>
+
+  <!-- SCRIPTS -->
+  <script>
+    function toggleMenu() {
+      const nav = document.getElementById('navLinks');
+      nav.classList.toggle('active');
+    }
+
+    function cerrarSesion() {
+      localStorage.clear();
+      window.location.href = 'index.html';
+    }
+
+    async function mostrarCategorias() {
+      const contenedor = document.getElementById('listaCategorias');
+      contenedor.innerHTML = 'Cargando categorías...';
+
+      try {
+        const res = await fetch('http://localhost:3001/api/categorias'); // Cambia si usas hosting
+        const categorias = await res.json();
+
+        if (categorias.length === 0) {
+          contenedor.innerHTML = '<p>No hay categorías disponibles.</p>';
+          return;
+        }
+
+        contenedor.innerHTML = '';
+        categorias.forEach(cat => {
+          const div = document.createElement('div');
+          div.className = 'categoria-item';
+          div.innerHTML = `<a href="cursos.html?categoria=${cat.id}">${cat.nombre}</a>`;
+          contenedor.appendChild(div);
+        });
+
+      } catch (error) {
+        console.error('Error al cargar categorías:', error);
+        contenedor.innerHTML = '<p>Error al cargar categorías.</p>';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', mostrarCategorias);
+  </script>
+</body>
+</html>

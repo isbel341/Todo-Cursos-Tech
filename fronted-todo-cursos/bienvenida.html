@@ -1,0 +1,208 @@
+<!DOCTYPE html> 
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bienvenido - Todo Cursos Tech Online</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #e0f7fa, #fefefe);
+      color: #333;
+      min-height: 100vh;
+      padding-top: 64px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 64px;
+      background: #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 1000;
+    }
+    .logo {
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: #00796b;
+      user-select: none;
+      cursor: default;
+    }
+    nav.main-nav {
+      display: flex;
+      gap: 20px;
+      font-weight: 600;
+    }
+    nav.main-nav a {
+      text-decoration: none;
+      color: #333;
+      padding: 8px 14px;
+      border-radius: 8px;
+      transition: background-color 0.3s ease;
+    }
+    nav.main-nav a:hover, nav.main-nav a:focus {
+      background-color: #00796b;
+      color: white;
+      outline: none;
+    }
+    .menu-icon {
+      font-size: 28px;
+      cursor: pointer;
+      user-select: none;
+      color: #00796b;
+      position: relative;
+      /* Para que el menú absoluto se posicione relativo a este contenedor */
+    }
+    /* Contenedor dropdown desplegable */
+    .dropdown-menu {
+      position: absolute;
+      top: 64px; /* justo debajo del header */
+      right: 0;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: none;
+      flex-direction: column;
+      min-width: 180px;
+      max-height: 300px;   /* altura máxima visible */
+      overflow-y: auto;    /* scroll vertical si hay muchas opciones */
+      z-index: 1100;
+    }
+    .dropdown-menu.active {
+      display: flex;
+    }
+    .dropdown-menu a {
+      padding: 12px 16px;
+      color: #333;
+      text-decoration: none;
+      font-weight: 600;
+      border-bottom: 1px solid #eee;
+      transition: background-color 0.2s ease;
+    }
+    .dropdown-menu a:last-child {
+      border-bottom: none;
+    }
+    .dropdown-menu a:hover, .dropdown-menu a:focus {
+      background-color: #00796b;
+      color: white;
+      outline: none;
+    }
+    main {
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      padding: 20px 16px 40px;
+      flex-grow: 1;
+    }
+    main img {
+      max-width: 140px;
+      margin-bottom: 24px;
+      user-select: none;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 8px;
+      color: #00796b;
+      font-weight: 700;
+    }
+    p {
+      font-size: 1.1rem;
+      color: #555;
+      margin-bottom: 32px;
+      line-height: 1.5;
+    }
+    button.logout-btn {
+      background-color: #d32f2f;
+      border: none;
+      color: white;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 6px 10px rgba(211, 47, 47, 0.4);
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+    button.logout-btn:hover,
+    button.logout-btn:focus {
+      background-color: #b71c1c;
+      outline: none;
+      box-shadow: 0 8px 14px rgba(183, 28, 28, 0.6);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo" tabindex="0" aria-label="Todo Cursos Tech Online logo">Todo Cursos</div>
+    <nav class="main-nav" aria-label="Navegación principal">
+      <a href="index.html">Inicio</a>
+      <a href="cursos.html">Cursos</a>
+      <a href="soporte.html">Soporte</a>
+      <a href="#" onclick="cerrarSesion()">Cerrar sesión</a>
+    </nav>
+    <div class="menu-icon" id="menuToggle" aria-label="Menú desplegable opciones" tabindex="0">&#9776;</div>
+    <div class="dropdown-menu" id="dropdownMenu" aria-label="Menú desplegable">
+      <a href="evaluaciones.html">Evaluaciones</a>
+      <a href="certificados.html">Certificados</a>
+      <a href="favoritos.html">Favoritos</a>
+      <a href="chat.html">Chat</a>
+      <a href="comentarios.html">Comentarios</a>
+        <a href="pagos.html">realizar pago</a>
+      <a href="ayuda.html">Ayuda</a>
+    </div>
+  </header>
+
+  <main>
+    <img src="cursos_img/Zorro Curiox en saludo amistoso.png" alt="Curiox saludando" />
+    <h1 id="titulo">¡Bienvenido a Todo Cursos Tech Online!</h1>
+    <p id="mensaje">Cargando información del usuario...</p>
+    <button class="logout-btn" onclick="cerrarSesion()">Cerrar sesión</button>
+  </main>
+
+  <script>
+    const menuToggle = document.getElementById('menuToggle');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+
+    menuToggle.addEventListener('click', () => {
+      dropdownMenu.classList.toggle('active');
+    });
+
+    // Cerrar menú si se hace clic fuera
+    document.addEventListener('click', (event) => {
+      if (!menuToggle.contains(event.target) && !dropdownMenu.contains(event.target)) {
+        dropdownMenu.classList.remove('active');
+      }
+    });
+
+    // También permitir abrir el menú con teclado (Enter o espacio)
+    menuToggle.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        dropdownMenu.classList.toggle('active');
+      }
+    });
+
+    const nombre = localStorage.getItem('nombre');
+    if (nombre) {
+      document.getElementById('titulo').textContent = `¡Hola, ${nombre}! 👋`;
+      document.getElementById('mensaje').textContent = 'Has iniciado sesión correctamente. Puedes explorar los cursos y herramientas disponibles.';
+    } else {
+      window.location.href = 'index.html';
+    }
+
+    function cerrarSesion() {
+      localStorage.clear();
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>

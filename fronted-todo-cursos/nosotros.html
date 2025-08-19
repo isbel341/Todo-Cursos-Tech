@@ -1,0 +1,245 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Quiénes Somos - Todo Cursos Tech Online</title>
+<style>
+  /* Reset básico */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f9faff;
+    color: #333;
+    margin: 0; 
+    padding: 0;
+  }
+  /* Menú fijo arriba */
+  header {
+    position: sticky;
+    top: 0;
+    background-color: #5f2eea;
+    padding: 15px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 1000;
+    box-shadow: 0 2px 6px rgba(95, 46, 234, 0.3);
+  }
+  header .logo {
+    height: 40px;
+    cursor: pointer;
+  }
+  nav {
+    display: flex;
+    gap: 24px;
+  }
+  nav a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+  }
+  nav a:hover {
+    background-color: #4525b8;
+  }
+  nav a.logout {
+    background-color: #ff4d4d;
+  }
+  nav a.logout:hover {
+    background-color: #e04343;
+  }
+
+  /* Contenedor general */
+  .contenedor {
+    max-width: 900px;
+    margin: 90px auto 50px; /* margen para que no quede pegado al menú */
+    padding: 0 20px;
+  }
+  h2 {
+    color: #5f2eea;
+    margin-bottom: 24px;
+    font-size: 2.2rem;
+    text-align: center;
+  }
+  .bloque {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 50px;
+    flex-wrap: wrap;
+  }
+  .bloque:nth-child(even) {
+    flex-direction: row-reverse;
+  }
+  .texto {
+    flex: 1 1 65%;
+    background: #e0e7ff;
+    padding: 25px 30px;
+    border-radius: 12px;
+    font-size: 1.15rem;
+    line-height: 1.7;
+    box-shadow: 0 4px 10px rgba(95, 46, 234, 0.1);
+  }
+  .texto h3 {
+    color: #2d2a9f;
+    margin-bottom: 14px;
+    font-size: 1.8rem;
+  }
+  .texto ul {
+    list-style-type: disc;
+    margin-left: 20px;
+  }
+  .imagen {
+    flex: 1 1 30%;
+    display: flex;
+    justify-content: center;
+  }
+  .imagen img {
+    max-width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  }
+  @media (max-width: 768px) {
+    .bloque {
+      flex-direction: column !important;
+    }
+    .imagen, .texto {
+      flex: 1 1 100%;
+    }
+    .imagen {
+      margin-bottom: 20px;
+    }
+    .texto {
+      font-size: 1.1rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="cursos_img/logo.png" alt="Logo Todo Cursos Tech Online" class="logo" onclick="location.href='index.html'" />
+  <nav>
+    <a href="index.html">Inicio</a>
+    <a href="register.html">Registro</a>
+    <a href="cursos.html">Cursos</a>
+    <a href="nosotros.html" aria-current="page" style="background-color:#4525b8; cursor:default;">Nosotros</a>
+  </nav>
+</header>
+
+<div class="contenedor">
+  <h2>¿Quiénes Somos?</h2>
+
+  <!-- BLOQUE 1: Descripción -->
+  <div class="bloque">
+    <div class="texto">
+      <p>Todo Cursos Tech Online es una plataforma educativa inclusiva y gamificada que ofrece una amplia gama de cursos sobre tecnología, arte, ciencia, idiomas y habilidades blandas para niños, adolescentes y adultos, en un entorno accesible, amigable y motivador.</p>
+    </div>
+    <div class="imagen">
+      <img src="cursos_img/zorro1.png" alt="Educación en línea, personas aprendiendo con dispositivos" />
+    </div>
+  </div>
+
+  <!-- BLOQUE 2: Historia -->
+  <div class="bloque">
+    <div class="texto">
+      <h3>Historia</h3>
+      <p>En los últimos años, el crecimiento de la educación en línea ha sido notable, impulsado por el avance tecnológico, el acceso a internet y la necesidad de opciones flexibles para estudiar desde casa. Plataformas como Udemy, Open English o Coursera han demostrado que aprender de forma remota es posible, pero muchas de estas opciones están enfocadas en adultos, en contenidos internacionales o no están adaptadas a la realidad de República Dominicana.</p>
+
+      <p>La idea de Todo Cursos Tech Online nació a partir de una experiencia personal. Mientras realizaba un curso en una vocacional, me di cuenta de que no me sentía motivada a asistir presencialmente. Luego intenté inscribirme en un curso de INFOTEP, pero me pasó lo mismo: quería aprender, pero no quería tener que ir físicamente. Ahí fue donde entendí que muchas personas como yo, tanto niños como adultos, necesitan una plataforma que les permita estudiar desde casa, de forma divertida y accesible.</p>
+
+      <p>Por eso decidí crear una solución diseñada especialmente para República Dominicana, con una plataforma educativa online que integre tecnología, gamificación, y contenidos pensados tanto para niños como para adultos. Esta propuesta busca ser una alternativa innovadora local, guiada por Curiox, una mascota amigable que hace del aprendizaje una aventura.</p>
+
+      <p>Mientras otras plataformas como Udemy son extranjeras (por ejemplo, de España o Estados Unidos), Todo Cursos Tech Online es una propuesta hecha en RD, para dominicanos, con identidad caribeña, accesible y diseñada para nuestra realidad educativa.</p>
+    </div>
+    <div class="imagen">
+      <img src="cursos_img/histo.png" alt="Representación de historia o crecimiento" />
+    </div>
+  </div>
+
+  <!-- BLOQUE 3: Misión -->
+  <div class="bloque">
+    <div class="texto">
+      <h3>Misión</h3>
+      <p>Brindar acceso a una educación digital inclusiva, divertida y de calidad para niños y adultos, usando la tecnología como puente de aprendizaje continuo en cualquier momento y lugar.</p>
+    </div>
+    <div class="imagen">
+      <img src="cursos_img/ingeniería.jpeg" alt="Icono que representa misión o crecimiento" />
+    </div>
+  </div>
+
+  <!-- BLOQUE 4: Visión -->
+  <div class="bloque">
+    <div class="texto">
+      <h3>Visión</h3>
+      <p>Ser la plataforma de educación en línea líder en República Dominicana, reconocida por su innovación, accesibilidad y capacidad de inspirar el aprendizaje continuo mediante experiencias digitales divertidas, interactivas y adaptadas a nuestra cultura.</p>
+    </div>
+    <div class="imagen">
+      <img src="cursos_img/vision.jpeg" alt="Icono o imagen que representa visión de futuro" />
+    </div>
+  </div>
+
+  <!-- BLOQUE 5: Valores -->
+  <div class="bloque">
+    <div class="texto">
+      <h3>Valores</h3>
+      <ul>
+        <li><strong>Accesibilidad:</strong> Educación para todos, sin importar edad, lugar o nivel previo.</li>
+        <li><strong>Innovación:</strong> Usamos la tecnología para transformar cómo se aprende.</li>
+        <li><strong>Curiosidad:</strong> Creemos que aprender empieza con la curiosidad, por eso creamos experiencias que inspiran.</li>
+        <li><strong>Diversión educativa:</strong> Aprender puede ser entretenido. Integramos juegos, retos y personajes como Curiox para mantener el interés.</li>
+        <li><strong>Compromiso con la calidad:</strong> Cada curso y recurso está diseñado para aportar verdadero valor a los estudiantes.</li>
+        <li><strong>Inclusión familiar:</strong> Promovemos el aprendizaje intergeneracional: niños, jóvenes y adultos aprendiendo juntos.</li>
+      </ul>
+    </div>
+    <div class="imagen">
+      <img src="cursos_img/valores.jpg" alt="Valores de la empresa" />
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer style="background-color: #222; color: white; padding: 20px 0; text-align: center;">
+    <div style="max-width: 1200px; margin: auto; padding: 0 20px;">
+        <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+            
+            <!-- Logo y descripción -->
+            <div style="flex: 1; min-width: 250px;">
+                <h2 style="color: #ff9800;">Todo Cursos Tech Online</h2>
+                <p>Aprende desde casa con cursos de tecnología, programación y más.</p>
+            </div>
+
+            <!-- Enlaces rápidos -->
+            <div style="flex: 1; min-width: 200px;">
+                <h3>Enlaces</h3>
+                <ul style="list-style: none; padding: 0;">
+                    <li><a href="index.html" style="color: white; text-decoration: none;">Inicio</a></li>
+                    <li><a href="registro.html" style="color: white; text-decoration: none;">Registro</a></li>
+                    <li><a href="cursos.html" style="color: white; text-decoration: none;">Cursos</a></li>
+                    <li><a href="contacto.html" style="color: white; text-decoration: none;">Contacto</a></li>
+                </ul>
+            </div>
+
+            <!-- Redes sociales -->
+<div style="flex: 1; min-width: 200px; text-align: center;">
+    <h3>Síguenos</h3>
+    <a href="https://wa.me/18094195525" target="_blank" style="color: white; margin: 0 10px; text-decoration: none;">
+        📱 WhatsApp
+    </a>
+    <a href="https://www.instagram.com/todocursostech?igsh=aXVhZ3p4cnl4cDBv" target="_blank" style="color: white; margin: 0 10px; text-decoration: none;">
+        📸 Instagram
+    </a>
+</div>
+<hr style="margin: 20px 0; border-color: rgba(255,255,255,0.2);">
+<p style="margin: 0;">&copy; 2025 Todo Cursos Tech Online. Todos los derechos reservados.</p>
+
+
+</body>
+</html>

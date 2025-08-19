@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Olvidé mi contraseña - Todo Cursos</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #a1c4fd, #c2e9fb);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .reset-box {
+      background-color: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+
+    input, button {
+      width: 90%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .mensaje {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="reset-box">
+    <h2>¿Olvidaste tu contraseña?</h2>
+    <form id="formResetRequest">
+      <input type="email" id="email" placeholder="Correo electrónico" required>
+      <button type="submit">Enviar enlace</button>
+    </form>
+    <div class="mensaje" id="mensaje"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('formResetRequest');
+    const mensaje = document.getElementById('mensaje');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+
+      try {
+        const res = await fetch('http://localhost:3001/api/auth/request-reset', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+
+        const json = await res.json();
+
+        if (json.message) {
+          mensaje.textContent = json.message;
+          form.reset();
+
+          if (json.enlace) {
+            mensaje.innerHTML += `<br><a href="${json.enlace}">Restablecer ahora</a>`;
+          }
+        } else {
+          mensaje.textContent = json.error || 'Error desconocido';
+        }
+      } catch (err) {
+        mensaje.textContent = 'Error de conexión con el servidor';
+        console.error(err);
+      }
+    });
+  </script>
+
+</body>
+</html>

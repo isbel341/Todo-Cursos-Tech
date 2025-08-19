@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Todo Cursos Tech Online</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="stylesheet" href="style.css" />
+  <!-- Íconos (para envelope/instagram/whatsapp) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" referrerpolicy="no-referrer"/>
+
+  <style>
+    :root {
+      --brand-purple: #5f2eea;
+      --brand-green: #28a745;
+      --radius: 12px;
+      --shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+    * { box-sizing:border-box; }
+    body {
+      margin:0;
+      font-family: 'Segoe UI',sans-serif;
+      background: linear-gradient(135deg,#84fab0,#8fd3f4);
+      color: #1f2d3a;
+      line-height:1.4;
+      min-height:100vh;
+    }
+    header { position: fixed; top:0; left:0; right:0; background:#fff; display:flex; align-items:center; justify-content: space-between; padding:10px 24px; gap:10px; z-index: 100; box-shadow:0 6px 25px rgba(0,0,0,0.08); flex-wrap:wrap; }
+    .logo img { height:50px; }
+    .nav { display:flex; gap:16px; flex-wrap:wrap; align-items:center; font-size:0.9rem; }
+    .nav a { text-decoration:none; color:#333; padding:8px 12px; border-radius:6px; font-weight:600; transition: background .2s; }
+    .nav a:hover { background:#f0f4fa; }
+    .actions { display:flex; gap:12px; align-items:center; }
+    .btn { padding:10px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; text-decoration:none; display:inline-block; }
+    .btn-primary { background: var(--brand-purple); color:#fff; }
+    .btn-secondary { background: white; color: var(--brand-purple); border:2px solid var(--brand-purple); }
+    .hero { padding: 140px 20px 60px; max-width: 1200px; margin: 0 auto; display:flex; gap:40px; flex-wrap:wrap; align-items:center; position: relative; }
+    .hero-text { flex:1 1 500px; min-width: 320px; }
+    .badge { display:inline-block; background:#ffca28; padding:6px 16px; border-radius:999px; font-weight:700; margin-bottom:12px; font-size:0.85rem; }
+    .hero-text h1 { font-size:2.8rem; margin:8px 0; line-height:1.1; }
+    .hero-text p { font-size:1.05rem; margin:16px 0 24px; max-width:600px; }
+    .hero-buttons { display:flex; gap:16px; flex-wrap:wrap; }
+    .hero-image { flex:1 1 400px; min-width: 320px; position: relative; }
+    .hero-image img { width:100%; border-radius:16px; box-shadow: var(--shadow); }
+
+    /* Planes */
+    .plans { margin:60px auto; display:flex; gap:20px; flex-wrap:wrap; max-width:1200px; padding:0 20px; }
+    .plan-card { background: white; flex:1 1 280px; border-radius: var(--radius); padding: 24px; position: relative; box-shadow: var(--shadow); display:flex; flex-direction:column; gap:12px; }
+    .plan-card.popular { border:2px solid var(--brand-purple); }
+    .plan-header { font-weight:700; font-size:1.1rem; text-transform: uppercase; letter-spacing:1px; }
+    .price { font-size:2rem; font-weight:700; margin:8px 0; }
+    .plan-features { list-style:none; padding:0; margin:0; font-size:0.95rem; gap:6px; display:flex; flex-direction:column; }
+    .plan-features li { display:flex; align-items:flex-start; gap:8px; }
+    .plan-features li::before { content: '✓'; color: var(--brand-purple); font-weight:700; margin-right:4px; }
+    .plan-btn { margin-top:12px; }
+
+    .features-summary { max-width: 1100px; margin: 40px auto; display:flex; gap:20px; flex-wrap:wrap; padding:0 16px; }
+    .feature-box { background: white; flex:1 1 240px; border-radius:12px; padding:20px; box-shadow: var(--shadow); }
+    .feature-box h4 { margin-bottom:8px; color: var(--brand-purple); }
+
+    /* Login */
+    .login-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center; padding:20px; z-index: 200; visibility: hidden; opacity: 0; transition: opacity .25s, visibility .25s; }
+    .login-overlay.visible { visibility: visible; opacity: 1; }
+    .login-box { background:white; padding:30px; border-radius:12px; max-width:400px; width:100%; box-shadow:0 25px 60px rgba(0,0,0,0.15); position: relative; }
+    .login-box h3 { margin-bottom:12px; }
+    .login-box input { width:100%; padding:12px 14px; margin:8px 0; border-radius:6px; border:1px solid #ccc; font-size:1rem; }
+    .login-box button { width:100%; padding:12px; margin-top:8px; border:none; border-radius:6px; font-weight:600; cursor:pointer; background: var(--brand-green); color:#fff; transition: background .2s; }
+    .login-box button:hover { background:#218838; }
+    .close-login { position:absolute; top:6px; right:6px; background:none; border:none; font-size:28px; cursor:pointer; line-height:1; }
+    .small { font-size:0.85rem; margin-top:8px; }
+    .status { font-size:0.9rem; margin-bottom:6px; color:#555; }
+
+    /* Footer */
+    footer { background: #f5f7fa; padding: 60px 20px 30px; margin-top:40px; font-size:0.85rem; color:#445; }
+    .footer-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap:30px; max-width: 1200px; margin:0 auto; }
+    .footer-section h5 { margin-bottom:10px; font-size:1rem; font-weight:700; }
+    .footer-section ul { list-style:none; padding:0; margin:0; line-height:1.4; }
+    .footer-section li { margin-bottom:6px; color: #2d3a4a; cursor:pointer; transition: color 0.2s, text-decoration 0.2s; text-decoration: underline; }
+    .footer-section ul li:hover { color: var(--brand-purple); text-decoration: underline; }
+    .footer-bottom { text-align:center; margin-top:30px; font-size:0.7rem; color:#666; }
+    .highlight { color: var(--brand-purple); }
+
+    /* Contacto */
+    .contact { max-width:1000px; margin: 10px auto 0; text-align:center; padding: 0 20px 30px; }
+    .contact .social p { margin:6px 0; }
+
+    @media (max-width:1000px){
+      .hero { flex-direction:column; }
+      .hero-text h1 { font-size:2.2rem; }
+      .plans { flex-direction:column; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><a href="index.html"><img src="cursos_img/logo.png" alt="Todo Cursos Tech Online"></a></div>
+  <nav class="nav">
+    <a href="index.html">Inicio</a>
+    <a href="nosotros.html">¿Quienes somos?</a>
+    <a href="mis_cursos.html">Cursos</a>
+    <a href="contacto.html">Contacto</a>
+  </nav>
+  <div class="actions">
+    <a href="#" id="loginBtn" class="btn btn-secondary">Iniciar sesión</a>
+    <a href="register.html" class="btn btn-primary">Registrarse</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-text">
+    <div class="badge">Con Curiox, aprender es una aventura</div>
+    <h1>Todo Cursos Tech Online<br><span class="highlight">Educación inclusiva y divertida</span></h1>
+    <p>Aprende desde casa con una plataforma hecha en República Dominicana, combinando gamificación, contenido local y certificaciones digitales. Cursos para niños, jóvenes y adultos con seguimiento personalizado.</p>
+    <div class="hero-buttons">
+      <a href="mis_cursos.html" class="btn btn-primary">Explorar cursos</a>
+      <a href="#" id="heroLogin" class="btn btn-secondary">Iniciar sesión</a>
+    </div>
+  </div>
+  <div class="hero-image">
+    <img src="cursos_img/Zorro Curiox en saludo amistoso.png" alt="Curiox dando la bienvenida">
+  </div>
+</section>
+
+<!-- === PLANES (nuevo) === -->
+<section class="plans" style="max-width:1200px; margin:40px auto; padding:0 20px;">
+  <h2 style="text-align:center; margin-bottom:30px;">Nuestros Planes Educativos</h2>
+
+  <!-- Plan Estándar -->
+  <div class="plan-card">
+    <div class="plan-header">PLAN ESTÁNDAR</div>
+    <div class="price">8 US$ / mes</div>
+    <ul class="plan-features">
+      <li><i class="fas fa-video"></i> Acceso a todos los <b>videos educativos</b></li>
+      <li><i class="fas fa-tasks"></i> Evaluaciones interactivas ilimitadas</li>
+      <li><i class="fas fa-laptop"></i> Acceso flexible 24/7 desde cualquier dispositivo</li>
+      <li><i class="fas fa-chalkboard-teacher"></i> Soporte para estudiantes y docentes</li>
+    </ul>
+    <button class="btn btn-primary plan-btn" onclick="abrirLogin()">Probar ahora</button>
+  </div>
+
+  <!-- Plan Premium (destacado) -->
+  <div class="plan-card popular" style="position:relative;">
+    <!-- Badge de destacado -->
+    <div style="
+      position:absolute;
+      top:-12px; left:50%;
+      transform:translateX(-50%);
+      background:#ff9800;
+      color:#fff;
+      font-size:14px;
+      font-weight:bold;
+      padding:5px 15px;
+      border-radius:20px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.2);
+    ">
+      ⭐ Más recomendado
+    </div>
+
+    <div class="plan-header">PLAN PREMIUM</div>
+    <div class="price">99 US$ / año</div>
+    <ul class="plan-features">
+      <li><i class="fas fa-video"></i> Todos los beneficios del plan estándar</li>
+      <li><i class="fas fa-certificate"></i> Certificados digitales al completar cursos</li>
+      <li><i class="fas fa-headset"></i> Soporte prioritario y personalizado</li>
+    </ul>
+    <button class="btn btn-primary plan-btn" onclick="abrirLogin()">Elegir plan</button>
+  </div>
+</section>
+
+<!-- === /PLANES === -->
+
+<section class="cursos-galeria" style="max-width:1200px; margin: 40px auto; padding: 0 20px;">
+  <h2 style="text-align:center; margin-bottom:24px;">Cursos disponibles</h2>
+  <div id="galeriaCursos" style="display:flex; flex-wrap:wrap; gap:24px; justify-content:center;"></div>
+</section>
+
+<!-- === CONTACTO (nuevo, antes del footer) === -->
+<div class="contact">
+  <h3><i class="fas fa-envelope"></i> ¿Necesitas más ayuda?</h3>
+  <p>Escríbenos a <a href="mailto:todocursostechonline@gmail.com">todocursostechonline@gmail.com</a></p>
+  <p>O visita la sección <a href="soporte.html">Soporte</a>.</p>
+  <div class="social">
+    <p><i class="fab fa-instagram"></i> Síguenos en Instagram:
+      <a href="https://www.instagram.com/todocursostech" target="_blank">@todocursostech</a>
+    </p>
+    <p>
+      <i class="fab fa-whatsapp"></i> Escríbenos por WhatsApp:
+      <a target="_blank" href="https://wa.me/1804195525?text=Hola%20quiero%20informaci%C3%B3n%20sobre%20los%20planes%20(Individual%2FFamiliar%2FAnual)">
+        804195525
+      </a>
+    </p>
+  </div>
+</div>
+<!-- === /CONTACTO === -->
+
+<!-- LOGIN OVERLAY -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <button class="close-login" id="closeLogin">&times;</button>
+    <h3>Iniciar sesión</h3>
+    <div class="status" id="statusMsg"></div>
+    <form id="formLogin">
+      <input type="email" id="email" placeholder="Correo electrónico" required />
+      <input type="password" id="password" placeholder="Contraseña" required />
+      <button type="submit">Entrar</button>
+    </form>
+    <div class="small">¿No tienes cuenta? <a href="register.html">Regístrate</a> · <a href="request_reset.html">¿Olvidaste tu contraseña?</a></div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-section">
+      <h5>Todo Cursos Tech Online</h5>
+      <p>Plataforma educativa gamificada hecha en República Dominicana. Con Curiox, aprender es una aventura.</p>
+    </div>
+    <div class="footer-section">
+      <h5>Comunidad</h5>
+      <ul><li>Estudiantes</li><li>Referidos</li><li>Blog</li><li>Soporte</li></ul>
+    </div>
+    <div class="footer-section">
+      <h5>Empresa</h5>
+      <ul><li>Acerca de</li><li>Políticas</li><li>Contacto</li><li>Privacidad</li></ul>
+    </div>
+    <div class="footer-section">
+      <h5>Planes</h5>
+      <ul><li>Individual</li><li>Familiar</li><li>Anual</li><li>Certificaciones</li></ul>
+    </div>
+  </div>
+  <hr style="margin: 20px 0; border-color: rgba(255,255,255,0.2);">
+  <div class="footer-bottom">
+    <p>© 2024 Todo Cursos Tech Online. Todos los derechos reservados. Hecho con ❤️ para República Dominicana.</p>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  // Referencias UI
+  const loginOverlay = document.getElementById('loginOverlay');
+  const statusMsg = document.getElementById('statusMsg');
+  const token = localStorage.getItem('token');
+
+  const actualizarUI = () => {
+    // Aquí puedes actualizar elementos según el login
+  };
+
+  // Abrir/cerrar login
+  document.getElementById('loginBtn').addEventListener('click', e => { e.preventDefault(); loginOverlay.classList.add('visible'); });
+  document.getElementById('heroLogin').addEventListener('click', e => { e.preventDefault(); loginOverlay.classList.add('visible'); });
+  document.getElementById('closeLogin').addEventListener('click', () => loginOverlay.classList.remove('visible'));
+
+  // Función global para usar en los botones de planes
+  function abrirLogin() { loginOverlay.classList.add('visible'); }
+  window.abrirLogin = abrirLogin;
+
+  // LOGIN
+  document.getElementById('formLogin').addEventListener('submit', async e => {
+    e.preventDefault();
+    statusMsg.innerText = 'Iniciando sesión...';
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    try {
+      const res = await fetch('http://localhost:3001/api/auth/login', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ email, password })
+      });
+      const json = await res.json();
+
+      if (json.token) {
+        localStorage.setItem('token', json.token);
+        localStorage.setItem('nombre', json.nombre);
+        localStorage.setItem('rol', json.rol);
+        localStorage.setItem('user_id', json.id); // ✅ clave consistente
+        statusMsg.innerText = `Bienvenido, ${json.nombre}`;
+        setTimeout(() => {
+          if (json.rol == 3) location.href = 'admin.html';
+          else if (json.rol == 2) location.href = 'tutor.html';
+          else location.href = 'bienvenida.html';
+        }, 600);
+      } else {
+        statusMsg.innerText = json.error || 'Error al iniciar sesión';
+        alert(json.error || 'Error al iniciar sesión');
+      }
+    } catch (err) {
+      statusMsg.innerText = 'Error de conexión';
+      console.error(err);
+      alert('No se pudo conectar al servidor');
+    }
+  });
+
+  // GALERÍA DE CURSOS
+  const cursos = [
+    { id:1, nombre:'Curso de Programación Básica', descripcion:'Aprende lógica, variables y estructuras básicas.', imagen:'cursos_img/pro.jpg' },
+    { id:2, nombre:'Diseño Web para Principiantes', descripcion:'HTML, CSS y primeros pasos para crear páginas.', imagen:'cursos_img/pag web.jpg' },
+    { id:3, nombre:'Bases de Datos con SQL', descripcion:'Consulta y gestiona datos fácilmente.', imagen:'cursos_img/mysql.jpg' }
+  ];
+
+  const galeria = document.getElementById('galeriaCursos');
+  cursos.forEach(curso => {
+    const card = document.createElement('div');
+    card.style.width = '280px';
+    card.style.border = '1px solid #ddd';
+    card.style.borderRadius = '12px';
+    card.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+    card.style.cursor = 'pointer';
+    card.style.overflow = 'hidden';
+    card.style.background = '#fff';
+    card.style.display = 'flex';
+    card.style.flexDirection = 'column';
+    card.innerHTML = `
+      <img src="${curso.imagen}" alt="${curso.nombre}" style="width:100%; height:160px; object-fit:cover;">
+      <div style="padding:16px;">
+        <h3 style="margin:0 0 8px; font-size:1.2rem; color: var(--brand-purple);">${curso.nombre}</h3>
+        <p style="font-size:0.9rem; color:#555;">${curso.descripcion}</p>
+      </div>
+    `;
+    card.addEventListener('click', () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Para ver este curso debes iniciar sesión');
+        loginOverlay.classList.add('visible');
+      } else {
+        window.location.href = 'mis_cursos.html';
+      }
+    });
+    galeria.appendChild(card);
+  });
+});
+</script>
+
+</body>
+</html>

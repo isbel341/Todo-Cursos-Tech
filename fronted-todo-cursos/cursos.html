@@ -1,0 +1,287 @@
+<!DOCTYPE html>   
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Explorar Cursos - Todo Cursos Tech</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ======= HEADER ======= */
+    .site-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 25px;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .site-header img { height: 50px; }
+    .main-nav { display: flex; gap: 15px; }
+    .main-nav a {
+      text-decoration: none;
+      font-weight: 600;
+      color: #333;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+    .main-nav a:hover { background: #f0f0f0; }
+    .search-bar input {
+      padding: 8px 14px;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+      outline: none;
+      width: 240px;
+    }
+
+    /* ======= FILTROS ======= */
+    .filtros {
+      max-width: 1200px;
+      margin: 25px auto 10px;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      padding: 0 15px;
+    }
+    .filtros select, .filtros input {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 0.9rem;
+    }
+
+    /* ======= CURSOS ======= */
+    .curso-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 25px;
+      justify-content: center;
+      padding: 15px;
+      max-width: 1200px;
+      margin: auto;
+    }
+    .curso-card {
+      background: white;
+      border-radius: 12px;
+      width: 260px;
+      overflow: hidden;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.25s ease;
+    }
+    .curso-card:hover { transform: translateY(-4px); }
+    .curso-card img, .curso-card iframe {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+    .curso-info {
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .curso-info h3 {
+      margin: 0 0 6px;
+      font-size: 1.1rem;
+      color: #1a237e;
+    }
+    .curso-info p {
+      margin: 4px 0;
+      font-size: 0.85rem;
+      color: #555;
+      flex: 1;
+    }
+    .curso-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      gap: 6px;
+    }
+    .btn-ver {
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: white;
+      background: #5f2eea;
+      transition: background 0.3s;
+    }
+    .btn-ver:hover {
+      background: #4a24b8;
+    }
+
+    .mensaje {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      background: #333;
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 8px;
+      opacity: 0.9;
+      z-index: 500;
+      display: none;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <a href="index.html"><img src="cursos_img/logo.png" alt="Todo Cursos Tech"></a>
+    <div class="search-bar">
+      <input id="buscar" type="text" placeholder="Buscar cursos...">
+    </div>
+    <nav class="main-nav">
+      <a href="index.html">Inicio</a>
+       <a href="bienvenida.html">Menu principal</a>
+      <a href="login.html" id="loginLink">Iniciar sesión</a>
+    </nav>
+  </header>
+
+  <!-- FILTROS -->
+  <div class="filtros" id="filtrosContenedor">
+    <select id="filtroCategoria">
+      <option value="">Todas las categorías</option>
+    </select>
+    <select id="filtroNivel">
+      <option value="">Todos los niveles</option>
+      <option value="Principiante">Principiante</option>
+      <option value="Intermedio">Intermedio</option>
+      <option value="Avanzado">Avanzado</option>
+    </select>
+  </div>
+
+  <!-- CURSOS -->
+  <section class="curso-grid" id="contenedorCursos"></section>
+
+  <!-- MENSAJE -->
+  <div class="mensaje" id="mensajeFlotante"></div>
+
+  <script>
+    const mensajeFlotante = document.getElementById('mensajeFlotante');
+    const token = localStorage.getItem('token');
+    let todosCursos = [];
+
+    function mostrarMensaje(texto, duracion = 1800) {
+      mensajeFlotante.innerText = texto;
+      mensajeFlotante.style.display = 'block';
+      setTimeout(() => { mensajeFlotante.style.display = 'none'; }, duracion);
+    }
+
+    function transformarYoutube(url) {
+      const match = url.match(/v=([^&]+)/);
+      return match ? `https://www.youtube.com/embed/${match[1]}` : url;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (token) {
+        document.getElementById('loginLink').innerText = 'Mi espacio';
+        document.getElementById('loginLink').href = 'bienvenida.html';
+      } else {
+        document.getElementById('miCuentaLink').href = 'login.html';
+      }
+
+      cargarCategorias();
+      cargarCursos();
+      configurarFiltros();
+    });
+
+    async function cargarCategorias() {
+      try {
+        const res = await fetch('http://localhost:3001/api/categorias');
+        const cats = await res.json();
+        const sel = document.getElementById('filtroCategoria');
+        cats.forEach(c => {
+          const o = document.createElement('option');
+          o.value = c.id;
+          o.innerText = c.nombre;
+          sel.appendChild(o);
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function cargarCursos() {
+      try {
+        const res = await fetch('http://localhost:3001/api/cursos');
+        todosCursos = await res.json();
+        renderizar(todosCursos);
+      } catch {
+        document.getElementById('contenedorCursos').innerHTML = '<p>Error cargando cursos.</p>';
+      }
+    }
+
+    function renderizar(lista) {
+      const cont = document.getElementById('contenedorCursos');
+      cont.innerHTML = '';
+      if (!lista.length) {
+        cont.innerHTML = '<p>No hay cursos que mostrar.</p>';
+        return;
+      }
+
+      lista.forEach(c => {
+        const card = document.createElement('div');
+        card.className = 'curso-card';
+
+        const contenidoMedio = c.video_url 
+          ? `<iframe width="100%" height="180" src="${transformarYoutube(c.video_url)}" title="Video del curso" frameborder="0" allowfullscreen></iframe>` 
+          : `<img src="${c.imagen || 'logo.png'}" alt="${c.titulo}">`;
+
+        card.innerHTML = `
+          ${contenidoMedio}
+          <div class="curso-info">
+            <h3>${c.titulo}</h3>
+            <p>${(c.descripcion||'').slice(0, 70)}...</p>
+            <div class="curso-meta">
+              <small>${c.categoria || ''} • ${c.nivel || ''}</small>
+              <button class="btn-ver">Ver</button>
+            </div>
+          </div>
+        `;
+
+        card.querySelector('.btn-ver').onclick = () => {
+          if (!token) {
+            alert('Debes iniciar sesión para ver el curso');
+            return location.href = 'login.html';
+          }
+          location.href = `curso_detalle.html?id=${c.id}`;
+        };
+
+        cont.appendChild(card);
+      });
+    }
+
+    function configurarFiltros() {
+      document.getElementById('filtroCategoria').addEventListener('change', aplicarFiltros);
+      document.getElementById('filtroNivel').addEventListener('change', aplicarFiltros);
+      document.getElementById('buscar').addEventListener('input', aplicarFiltros);
+    }
+
+    function aplicarFiltros() {
+      let filtrado = [...todosCursos];
+      const cat = document.getElementById('filtroCategoria').value;
+      const nivel = document.getElementById('filtroNivel').value;
+      const texto = document.getElementById('buscar').value.toLowerCase();
+
+      if (cat) filtrado = filtrado.filter(c => String(c.categoria_id) === cat || String(c.categoria) === cat);
+      if (nivel) filtrado = filtrado.filter(c => (c.nivel||'').toLowerCase() === nivel.toLowerCase());
+      if (texto) filtrado = filtrado.filter(c => (c.titulo||'').toLowerCase().includes(texto));
+
+      renderizar(filtrado);
+    }
+  </script>
+
+</body>
+</html>

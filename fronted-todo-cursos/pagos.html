@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Realizar Pago</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f7f9fc;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      background-color: white;
+      padding: 30px 40px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 100%;
+    }
+    h2 { text-align: center; margin-bottom: 25px; }
+    label { font-weight: bold; margin-top: 10px; display: block; }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover { background-color: #0056b3; }
+    .message { text-align: center; margin-top: 15px; font-weight: bold; }
+    .success { color: green; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Realizar Pago</h2>
+    <form id="paymentForm">
+      <label for="usuario_id">ID de Usuario</label>
+      <input type="number" id="usuario_id" name="usuario_id" required min="1" />
+
+      <label for="curso_id">ID del Curso</label>
+      <input type="number" id="curso_id" name="curso_id" required min="1" />
+
+      <label for="monto">Monto (USD)</label>
+      <input type="number" id="monto" name="monto" required step="0.01" min="0.01" />
+
+      <label for="metodo_pago">Método de Pago</label>
+      <select id="metodo_pago" name="metodo_pago" required>
+        <option value="">Seleccione un método</option>
+        <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
+        <option value="PayPal">PayPal</option>
+        <option value="Transferencia Bancaria">Transferencia Bancaria</option>
+      </select>
+
+      <button type="submit">Pagar</button>
+    </form>
+    <div id="message" class="message"></div>
+  </div>
+
+  <script>
+    document.getElementById('paymentForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      const usuarioId = Number(document.getElementById('usuario_id').value);
+      const cursoId = Number(document.getElementById('curso_id').value);
+      const monto = Number(document.getElementById('monto').value);
+      const metodoPago = document.getElementById('metodo_pago').value;
+
+      if (!usuarioId || !cursoId || !monto || !metodoPago) {
+        showMessage('Por favor, complete todos los campos.', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch('http://localhost:3001/api/pagos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            usuario_id: usuarioId,
+            curso_id: cursoId,
+            monto: monto,
+            metodo_pago: metodoPago,
+            estado: 'completado'
+          })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          showMessage(`Pago registrado con éxito (ID: ${data.id})`, 'success');
+          this.reset();
+        } else {
+          showMessage(data.message || 'Error al procesar el pago', 'error');
+        }
+      } catch (err) {
+        showMessage('Error de conexión con el servidor', 'error');
+      }
+    });
+
+    function showMessage(message, type) {
+      const msgDiv = document.getElementById('message');
+      msgDiv.textContent = message;
+      msgDiv.className = `message ${type}`;
+    }
+  </script>
+</body>
+</html>

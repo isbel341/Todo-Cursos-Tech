@@ -1,0 +1,190 @@
+// Página de chat para usuarios registrados en Todo Cursos Tech Online
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat - Todo Cursos Tech</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+    }
+    .chat-container {
+      display: flex;
+      height: 100vh;
+    }
+    .sidebar {
+      width: 25%;
+      background: #fff;
+      border-right: 1px solid #ccc;
+      overflow-y: auto;
+    }
+    .chat-main {
+      width: 75%;
+      display: flex;
+      flex-direction: column;
+    }
+    .chat-header {
+      padding: 16px;
+      background: #008069;
+      color: #fff;
+      font-weight: bold;
+    }
+    .chat-messages {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      background: #e5ddd5;
+    }
+    .message {
+      max-width: 60%;
+      padding: 10px 16px;
+      margin: 8px 0;
+      border-radius: 16px;
+      clear: both;
+    }
+    .yo {
+      background: #dcf8c6;
+      align-self: flex-end;
+      margin-left: auto;
+    }
+    .otro {
+      background: #fff;
+      align-self: flex-start;
+      margin-right: auto;
+    }
+    .chat-input {
+      display: flex;
+      border-top: 1px solid #ccc;
+    }
+    .chat-input input {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      font-size: 1rem;
+    }
+    .chat-input button {
+      background: #008069;
+      border: none;
+      color: #fff;
+      padding: 12px 20px;
+      cursor: pointer;
+    }
+    .user-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .user-list li {
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+    }
+    .user-list li:hover {
+      background: #f5f5f5;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="sidebar">
+      <div class="chat-header">Usuarios</div>
+      <ul class="user-list" id="listaUsuarios"></ul>
+    </div>
+    <div class="chat-main">
+      <div class="chat-header" id="nombreUsuario">Selecciona un usuario</div>
+      <div class="chat-messages" id="mensajesChat"></div>
+      <form class="chat-input" id="formChat">
+        <input type="text" id="mensaje" placeholder="Escribe tu mensaje..." autocomplete="off">
+        <button type="submit"><i class="fas fa-paper-plane"></i></button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem('token');
+    const emisorId = localStorage.getItem('id');
+    let receptorId = null;
+
+    const listaUsuarios = document.getElementById('listaUsuarios');
+    const mensajesChat = document.getElementById('mensajesChat');
+    const nombreUsuario = document.getElementById('nombreUsuario');
+    const formChat = document.getElementById('formChat');
+
+    async function cargarUsuarios() {
+      try {
+        const res = await fetch('http://localhost:3001/api/usuarios/todos', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const usuarios = await res.json();
+        listaUsuarios.innerHTML = '';
+        usuarios.forEach(u => {
+          if (u.id != emisorId) {
+            const li = document.createElement('li');
+            li.textContent = u.nombre;
+            li.onclick = () => seleccionarUsuario(u);
+            listaUsuarios.appendChild(li);
+          }
+        });
+      } catch (err) {
+        console.error('Error al cargar usuarios', err);
+      }
+    }
+
+    function seleccionarUsuario(usuario) {
+      receptorId = usuario.id;
+      nombreUsuario.textContent = usuario.nombre;
+      cargarMensajes();
+    }
+
+    async function cargarMensajes() {
+      if (!receptorId) return;
+      try {
+        const res = await fetch(`http://localhost:3001/api/chat/mensajes?receptor_id=${receptorId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const mensajes = await res.json();
+        mensajesChat.innerHTML = '';
+        mensajes.forEach(msg => {
+          const div = document.createElement('div');
+          div.classList.add('message');
+          div.classList.add(msg.emisor_id == emisorId ? 'yo' : 'otro');
+          div.textContent = msg.mensaje;
+          mensajesChat.appendChild(div);
+        });
+        mensajesChat.scrollTop = mensajesChat.scrollHeight;
+      } catch (err) {
+        console.error('Error al cargar mensajes', err);
+      }
+    }
+
+    formChat.addEventListener('submit', async e => {
+      e.preventDefault();
+      const mensaje = document.getElementById('mensaje').value.trim();
+      if (!mensaje || !receptorId) return;
+      try {
+        await fetch('http://localhost:3001/api/chat/enviar', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ receptor_id: receptorId, mensaje })
+        });
+        document.getElementById('mensaje').value = '';
+        cargarMensajes();
+      } catch (err) {
+        console.error('Error al enviar mensaje', err);
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', cargarUsuarios);
+  </script>
+</body>
+</html>
