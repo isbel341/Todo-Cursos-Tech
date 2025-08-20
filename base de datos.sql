@@ -1,74 +1,3 @@
-select * from certificados;
-select * from cursos_completados;
-
-select * from cursos;
-
-DELETE FROM certificados
-WHERE id = 3;
-
-SELECT * FROM cursos WHERE id = 17;
-SELECT * FROM usuarios WHERE id = 3;
-
-ALTER TABLE certificados DROP COLUMN puntaje;
-
-DELETE FROM cursos
-WHERE id IN (1, 2, 4, 14); -- reemplaza 1,2,3 por los IDs de los cursos que quieres eliminar
-
-DROP TABLE IF EXISTS inscripciones CASCADE;
-
-
-select * from mensajes_chat;
-
-select * from evaluaciones;
-
-
-
--- dhkj
-1. select * from categorias;
-
-2. select * from certificados;
-
-3. select * from comentarios;
-
-4. select * from cupones;
-
-5. select * from curso_detalle;
-
-6. select * from cursos;
-
-7. select * from cursos_completados;
-
-8. select * from evaluaciones;
-
-9. select * from evaluaciones_preguntas;
-
-10. select * from evaluaciones_resultados;
-
-11. select * from favoritos;
-
-12. select * from lecciones;
-
-13. select * from log_actividad;
-
-14. select * from mensajes_chat;
-
-15. select * from mensajes_soporte;
-
-16. select * from pagos;
-
-17. select * from progreso;
-
-18. select * from reset_tokens;
-
-19. select * from respuestas_evaluacion;
-
-20. select * from roles;
-
-21. select * from sesiones;
-
-22. select * from suscripciones;
-
-23. select * from usuarios;
 
 
 -- codigo de la base de datos 
@@ -274,7 +203,6 @@ CREATE TABLE sesiones (
   fecha_inicio TIMESTAMP WITHOUT TIME ZONE,
   fecha_cierre TIMESTAMP WITHOUT TIME ZONE
 );
-
 
 --tabla de 
 CREATE TABLE suscripciones (
