@@ -62,39 +62,48 @@
   </div>
 
   <script>
-    const form = document.getElementById('formResetRequest');
-    const mensaje = document.getElementById('mensaje');
+  const form = document.getElementById('formResetRequest');
+  const mensaje = document.getElementById('mensaje');
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-      const email = document.getElementById('email').value;
+    const email = document.getElementById('email').value.trim();
 
-      try {
-        const res = await fetch('http://localhost:3001/api/auth/request-reset', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email })
-        });
+    if (!email) {
+      mensaje.textContent = '⚠️ Por favor ingrese su correo electrónico.';
+      mensaje.className = 'mensaje error';
+      return;
+    }
 
-        const json = await res.json();
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/request-reset`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
 
-        if (json.message) {
-          mensaje.textContent = json.message;
-          form.reset();
+      const json = await res.json();
 
-          if (json.enlace) {
-            mensaje.innerHTML += `<br><a href="${json.enlace}">Restablecer ahora</a>`;
-          }
-        } else {
-          mensaje.textContent = json.error || 'Error desconocido';
+      if (res.ok && json.message) {
+        mensaje.innerHTML = `✅ ${json.message}`;
+        form.reset();
+
+        if (json.enlace) {
+          mensaje.innerHTML += `<br><a href="${json.enlace}" target="_blank">Restablecer ahora</a>`;
         }
-      } catch (err) {
-        mensaje.textContent = 'Error de conexión con el servidor';
-        console.error(err);
-      }
-    });
-  </script>
 
+        mensaje.className = 'mensaje success';
+      } else {
+        mensaje.textContent = json.error || '❌ Error desconocido';
+        mensaje.className = 'mensaje error';
+      }
+    } catch (err) {
+      console.error('Error de conexión:', err);
+      mensaje.textContent = '🚫 No se pudo conectar al servidor';
+      mensaje.className = 'mensaje error';
+    }
+  });
+</script>
 </body>
 </html>

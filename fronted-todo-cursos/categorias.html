@@ -157,7 +157,7 @@
       contenedor.innerHTML = 'Cargando categorías...';
 
       try {
-        const res = await fetch('http://localhost:3001/api/categorias'); // Cambia si usas hosting
+        const res = await fetch(`${API_URL}/api/categorias`); // Cambia si usas hosting
         const categorias = await res.json();
 
         if (categorias.length === 0) {

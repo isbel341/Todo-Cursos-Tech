@@ -44,15 +44,20 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("btnCertificado").addEventListener("click", generarCertificado);
 });
 
-async function cargarPreguntas() {
+async function cargarPreguntas(cursoId) {
   try {
-    const res = await fetch(`http://localhost:3001/api/evaluaciones?curso_id=${cursoId}`, {
-      headers: { "Authorization": `Bearer ${token}` }
+    const res = await fetch(`${API_URL}/api/evaluaciones?curso_id=${cursoId}`, {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
     });
-    preguntas = await res.json();
-    renderPreguntas();
+
+    if (!res.ok) throw new Error('Error al obtener preguntas');
+
+    const preguntas = await res.json();
+    renderPreguntas(preguntas);
   } catch (err) {
-    console.error(err);
+    console.error('Error al cargar preguntas:', err);
     document.getElementById("contenedorPreguntas").innerHTML = "<p>Error al cargar las preguntas.</p>";
   }
 }
@@ -78,13 +83,25 @@ function renderPreguntas() {
 async function enviarEvaluacion() {
   const respuestas = preguntas.map(p => {
     const seleccionada = document.querySelector(`input[name="pregunta_${p.id}"]:checked`);
-    return { evaluacion_id: p.id, respuesta: seleccionada ? seleccionada.value : null };
+    return {
+      evaluacion_id: p.id,
+      respuesta: seleccionada ? seleccionada.value : null
+    };
   });
 
+  // Validación previa
+  if (respuestas.some(r => r.respuesta === null)) {
+    alert("Por favor responde todas las preguntas antes de enviar.");
+    return;
+  }
+
   try {
-    const res = await fetch(`http://localhost:3001/api/evaluaciones/responder`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/evaluaciones/responder`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
       body: JSON.stringify({ curso_id: cursoId, respuestas })
     });
 
@@ -94,20 +111,22 @@ async function enviarEvaluacion() {
     }
 
     const resultado = await res.json();
-    document.getElementById("resultado").innerText = 
-      `Respuestas correctas: ${resultado.correctas}/${resultado.total} (${((resultado.correctas / resultado.total) * 100).toFixed(2)}%)`;
+    document.getElementById("resultado").innerText =
+      `✅ Respuestas correctas: ${resultado.correctas}/${resultado.total} 
+      (${((resultado.correctas / resultado.total) * 100).toFixed(2)}%)`;
 
     document.getElementById("btnCertificado").style.display = "inline-block";
 
   } catch (err) {
-    console.error(err);
-    alert(err.message);
+    console.error("Error al enviar evaluación:", err);
+    alert(`❌ ${err.message}`);
   }
 }
 
+
 async function generarCertificado() {
   try {
-    const res = await fetch('http://localhost:3001/api/certificados/generar', {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/certificados/generar`, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json', 
@@ -118,17 +137,17 @@ async function generarCertificado() {
 
     if (!res.ok) {
       const errData = await res.json();
-      alert(errData.error || 'Error al generar certificado');
+      alert(`❌ ${errData.error || 'Error al generar certificado'}`);
       return;
     }
 
     const certificado = await res.json();
-    alert(`Certificado generado con éxito.\nCódigo: ${certificado.certificado.codigo_certificado}`);
+    alert(`🎉 Certificado generado con éxito.\nCódigo: ${certificado.certificado.codigo_certificado}`);
     window.location.href = 'certificados.html';
 
   } catch (err) {
-    console.error(err);
-    alert('Ocurrió un error al generar el certificado.');
+    console.error('Error al generar certificado:', err);
+    alert('❌ Ocurrió un error inesperado al generar el certificado.');
   }
 }
 </script>

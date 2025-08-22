@@ -26,37 +26,41 @@
   <p>¿Ya tienes cuenta? <a href="index.html">Inicia sesión</a></p>
 
   <script>
-    const form = document.getElementById('formRegistro');
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+  const form = document.getElementById('formRegistro');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-      const data = {
-        nombre: document.getElementById('nombre').value,
-        email: document.getElementById('email').value,
-        password: document.getElementById('password').value
-      };
+    const data = {
+      nombre: document.getElementById('nombre').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      password: document.getElementById('password').value
+    };
 
-      try {
-        const res = await fetch('http://localhost:3001/api/auth/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
+    if (!data.nombre || !data.email || !data.password) {
+      alert("⚠️ Todos los campos son obligatorios.");
+      return;
+    }
 
-        const json = await res.json();
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
 
-        if (json.message) {
-          alert("✅ Registro exitoso. Ahora inicia sesión.");
-          window.location.href = "index.html";
-        } else {
-          alert(json.error || "❌ Error al registrarse.");
-        }
-      } catch (err) {
-        alert("🚫 Error de conexión con el servidor");
-        console.error(err);
+      const json = await res.json();
+
+      if (res.ok && json.message) {
+        alert("✅ Registro exitoso. Ahora inicia sesión.");
+        window.location.href = "index.html";
+      } else {
+        alert(`❌ ${json.error || "Error al registrarse."}`);
       }
-    });
-  </script>
-
+    } catch (err) {
+      console.error("Error de conexión:", err);
+      alert("🚫 No se pudo conectar al servidor.");
+    }
+  });
+</script>
 </body>
 </html>

@@ -119,7 +119,7 @@
 
     async function cargarUsuarios() {
       try {
-        const res = await fetch('http://localhost:3001/api/usuarios/todos', {
+        const res = await fetch(`${API_URL}/api/usuarios/todos`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const usuarios = await res.json();
@@ -146,7 +146,7 @@
     async function cargarMensajes() {
       if (!receptorId) return;
       try {
-        const res = await fetch(`http://localhost:3001/api/chat/mensajes?receptor_id=${receptorId}`, {
+        const res = await fetch(`${API_URL}/api/chat/mensajes?receptor_id=${receptorId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const mensajes = await res.json();
@@ -169,7 +169,7 @@
       const mensaje = document.getElementById('mensaje').value.trim();
       if (!mensaje || !receptorId) return;
       try {
-        await fetch('http://localhost:3001/api/chat/enviar', {
+        await fetch(`${API_URL}/api/chat/enviar`,  {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,

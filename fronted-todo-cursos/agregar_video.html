@@ -90,8 +90,7 @@
       };
 
       try {
-        const res = await 
-        fetch('http://localhost:3001/api/curso_detalle/videos', 
+        const res = await fetch(`${API_URL}/api/curso_detalle/videos`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

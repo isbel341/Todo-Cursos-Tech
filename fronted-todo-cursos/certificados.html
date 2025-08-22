@@ -61,14 +61,14 @@ async function cargarCertificados() {
   const contenedor = document.getElementById('listaCertificados');
   try {
     // Traer cursos completados
-    const resCursos = await fetch('http://localhost:3001/api/cursos/completados', {
+    const resCursos = await fetch(`${API_URL}/api/cursos/completados`, {
       headers: { Authorization: 'Bearer ' + token }
     });
     const dataCursos = await resCursos.json();
     const cursosCompletados = Array.isArray(dataCursos) ? dataCursos : [];
 
     // Traer certificados existentes
-    const resCerts = await fetch('http://localhost:3001/api/certificados', {
+    const resCerts = await fetch(`${API_URL}/api/certificados`,{
       headers: { Authorization: 'Bearer ' + token }
     });
     const certificados = await resCerts.json();
@@ -107,7 +107,7 @@ async function cargarCertificados() {
 
 async function descargarPDF(id){
   try{
-    const res = await fetch(`http://localhost:3001/api/certificados/descargar/${id}`,{
+    const res = await fetch(`${API_URL}/api/certificados/descargar/${id}`,{
       method:'GET', headers:{ Authorization:'Bearer '+token }
     });
     if(!res.ok) throw new Error('No se pudo descargar el PDF');
@@ -123,7 +123,7 @@ async function descargarPDF(id){
 
 async function generarCertificado(cursoId){
   try{
-    const res = await fetch('http://localhost:3001/api/certificados/generar',{
+   const res = await fetch(`${API_URL}/api/certificados/generar`, {
       method:'POST',
       headers: { 'Content-Type':'application/json', Authorization:'Bearer '+token },
       body: JSON.stringify({ curso_id: cursoId })  // ⚡ nombre corregido

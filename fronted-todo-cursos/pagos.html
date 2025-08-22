@@ -74,50 +74,51 @@
   </div>
 
   <script>
-    document.getElementById('paymentForm').addEventListener('submit', async function(event) {
-      event.preventDefault();
+  document.getElementById('paymentForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
 
-      const usuarioId = Number(document.getElementById('usuario_id').value);
-      const cursoId = Number(document.getElementById('curso_id').value);
-      const monto = Number(document.getElementById('monto').value);
-      const metodoPago = document.getElementById('metodo_pago').value;
+    const usuarioId = Number(document.getElementById('usuario_id').value);
+    const cursoId = Number(document.getElementById('curso_id').value);
+    const monto = Number(document.getElementById('monto').value);
+    const metodoPago = document.getElementById('metodo_pago').value;
 
-      if (!usuarioId || !cursoId || !monto || !metodoPago) {
-        showMessage('Por favor, complete todos los campos.', 'error');
-        return;
-      }
-
-      try {
-        const res = await fetch('http://localhost:3001/api/pagos', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            usuario_id: usuarioId,
-            curso_id: cursoId,
-            monto: monto,
-            metodo_pago: metodoPago,
-            estado: 'completado'
-          })
-        });
-
-        const data = await res.json();
-
-        if (res.ok) {
-          showMessage(`Pago registrado con éxito (ID: ${data.id})`, 'success');
-          this.reset();
-        } else {
-          showMessage(data.message || 'Error al procesar el pago', 'error');
-        }
-      } catch (err) {
-        showMessage('Error de conexión con el servidor', 'error');
-      }
-    });
-
-    function showMessage(message, type) {
-      const msgDiv = document.getElementById('message');
-      msgDiv.textContent = message;
-      msgDiv.className = `message ${type}`;
+    if (!usuarioId || !cursoId || !monto || !metodoPago) {
+      showMessage('Por favor, complete todos los campos.', 'error');
+      return;
     }
-  </script>
+
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/pagos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          usuario_id: usuarioId,
+          curso_id: cursoId,
+          monto: monto,
+          metodo_pago: metodoPago,
+          estado: 'completado'
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        showMessage(`✅ Pago registrado con éxito (ID: ${data.id})`, 'success');
+        this.reset();
+      } else {
+        showMessage(data.message || '❌ Error al procesar el pago', 'error');
+      }
+    } catch (err) {
+      console.error('Error de conexión:', err);
+      showMessage('❌ Error de conexión con el servidor', 'error');
+    }
+  });
+
+  function showMessage(message, type) {
+    const msgDiv = document.getElementById('message');
+    msgDiv.textContent = message;
+    msgDiv.className = `message ${type}`;
+  }
+</script>
 </body>
 </html>

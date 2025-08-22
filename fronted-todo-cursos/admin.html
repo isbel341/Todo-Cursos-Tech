@@ -191,7 +191,7 @@
     // ==========================
     async function cargarCategorias() {
       try {
-        const res = await fetch('http://localhost:3001/api/categorias');
+        const res = await fetch(`${API_URL}/api/categorias`);
         const cats = await res.json();
         const sel = document.getElementById('categoria');
         sel.innerHTML = '<option value="">Selecciona categoría</option>';
@@ -212,7 +212,7 @@
     // ==========================
     async function cargarCursos() {
       try {
-        const res = await fetch('http://localhost:3001/api/cursos');
+        const res = await fetch(`${API_URL}/api/cursos`);
         const cursos = await res.json();
         cursosCache = Array.isArray(cursos) ? cursos : [];
         poblarEvalSelect();
@@ -286,7 +286,7 @@
       const contenedor = document.getElementById('form-editar-curso');
 
       let categorias = [];
-      try { const res = await fetch('http://localhost:3001/api/categorias'); categorias = await res.json(); } catch(e){}
+      try { const res = await fetch(`${API_URL}/api/categorias`); categorias = await res.json(); } catch(e){}
 
       let opciones = '<option value="">Selecciona categoría</option>';
       categorias.forEach(c => { opciones += `<option value="${c.id}" ${c.nombre===cursoCategoriaNombre?'selected':''}>${c.nombre}</option>`; });
@@ -322,8 +322,8 @@
       const video_url = document.getElementById('curso-video').value.trim();
       if (!titulo||!descripcion||!categoria_id||!nivel){ alert('Completa todos los campos'); return; }
       try {
-        const res = await fetch('http://localhost:3001/api/cursos/'+id,{
-          method:'PUT',
+        const res = await fetch(`${API_URL}/api/cursos/${id}`, {
+          method: 'PUT',
           headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
           body: JSON.stringify({titulo,descripcion,categoria_id,nivel,video_url})
         });
@@ -349,7 +349,7 @@
       }
 
       try {
-        const res = await fetch('http://localhost:3001/api/cursos', {
+        const res = await fetch(`${API_URL}/api/cursos/${id}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -383,9 +383,12 @@
     // ==========================
     async function cargarUsuarios() {
       try {
-        const res = await fetch('http://localhost:3001/api/usuarios/todos', {
-          headers: { 'Authorization': 'Bearer ' + token }
+       const res = await fetch(`${API_URL}/api/usuarios/todos`, {
+        headers: {
+           'Authorization': `Bearer ${token}`
+          }
         });
+
         const usuarios = await res.json();
         const cont = document.getElementById('listaUsuarios');
         cont.innerHTML = '';
@@ -457,9 +460,12 @@
     async function cargarEvaluaciones(){
       if(!cursoSeleccionadoId) return;
       try{
-        const res = await fetch(`http://localhost:3001/api/evaluaciones?curso_id=${cursoSeleccionadoId}`,{
-          headers:{'Authorization':'Bearer '+token}
-        });
+        const res = await fetch(`${API_URL}/api/evaluaciones?curso_id=${cursoSeleccionadoId}`, {
+          headers: {
+          'Authorization': `Bearer ${token}`
+          }
+      });
+
         const evals = await res.json();
         const cont = document.getElementById('listaEvaluaciones');
         cont.innerHTML='';
@@ -549,7 +555,7 @@
       const opcion_correcta = (correctaKey === 'opcion1') ? opcion1 : (correctaKey === 'opcion2') ? opcion2 : opcion3;
 
       const metodo = id ? 'PUT' : 'POST';
-      const endpoint = id ? `http://localhost:3001/api/evaluaciones/${id}` : 'http://localhost:3001/api/evaluaciones';
+      const endpoint = id  ? `${API_URL}/api/evaluaciones/${id}` : `${API_URL}/api/evaluaciones`;
 
       try{
         const res = await fetch(endpoint,{
@@ -584,10 +590,12 @@
     async function eliminarPregunta(id){
       if(!confirm('¿Seguro que quieres eliminar esta pregunta?')) return;
       try{
-        const res = await fetch(`http://localhost:3001/api/evaluaciones/${id}`,{
-          method:'DELETE',
-          headers:{'Authorization':'Bearer '+token}
-        });
+        const res = await fetch(`${API_URL}/api/evaluaciones/${id}`, {
+            headers: {
+            'Authorization': `Bearer ${token}`
+          }
+         });
+
         if(!res.ok){
           const ct = res.headers.get('content-type')||'';
           const txt = ct.includes('application/json') ? (await res.json()).error || JSON.stringify(await res.json()) : await res.text();

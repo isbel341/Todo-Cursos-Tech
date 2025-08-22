@@ -255,42 +255,47 @@ document.addEventListener('DOMContentLoaded', () => {
   function abrirLogin() { loginOverlay.classList.add('visible'); }
   window.abrirLogin = abrirLogin;
 
-  // LOGIN
   document.getElementById('formLogin').addEventListener('submit', async e => {
-    e.preventDefault();
-    statusMsg.innerText = 'Iniciando sesión...';
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
+  e.preventDefault();
+  statusMsg.innerText = '🔐 Iniciando sesión...';
 
-    try {
-      const res = await fetch('http://localhost:3001/api/auth/login', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ email, password })
-      });
-      const json = await res.json();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
 
-      if (json.token) {
-        localStorage.setItem('token', json.token);
-        localStorage.setItem('nombre', json.nombre);
-        localStorage.setItem('rol', json.rol);
-        localStorage.setItem('user_id', json.id); // ✅ clave consistente
-        statusMsg.innerText = `Bienvenido, ${json.nombre}`;
-        setTimeout(() => {
-          if (json.rol == 3) location.href = 'admin.html';
-          else if (json.rol == 2) location.href = 'tutor.html';
-          else location.href = 'bienvenida.html';
-        }, 600);
-      } else {
-        statusMsg.innerText = json.error || 'Error al iniciar sesión';
-        alert(json.error || 'Error al iniciar sesión');
-      }
-    } catch (err) {
-      statusMsg.innerText = 'Error de conexión';
-      console.error(err);
-      alert('No se pudo conectar al servidor');
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    const json = await res.json();
+
+    if (json.token) {
+      localStorage.setItem('token', json.token);
+      localStorage.setItem('nombre', json.nombre);
+      localStorage.setItem('rol', json.rol);
+      localStorage.setItem('user_id', json.id);
+
+      statusMsg.innerText = `✅ Bienvenido, ${json.nombre}`;
+
+      setTimeout(() => {
+        switch (json.rol) {
+          case 3: location.href = 'admin.html'; break;
+          case 2: location.href = 'tutor.html'; break;
+          default: location.href = 'bienvenida.html';
+        }
+      }, 600);
+    } else {
+      statusMsg.innerText = json.error || 'Error al iniciar sesión';
+      alert(`❌ ${json.error || 'Credenciales inválidas'}`);
     }
-  });
+  } catch (err) {
+    console.error('Error de conexión:', err);
+    statusMsg.innerText = '❌ Error de conexión con el servidor';
+    alert('No se pudo conectar al servidor');
+  }
+});
 
   // GALERÍA DE CURSOS
   const cursos = [

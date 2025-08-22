@@ -198,30 +198,46 @@
     });
 
     async function cargarCategorias() {
-      try {
-        const res = await fetch('http://localhost:3001/api/categorias');
-        const cats = await res.json();
-        const sel = document.getElementById('filtroCategoria');
-        cats.forEach(c => {
-          const o = document.createElement('option');
-          o.value = c.id;
-          o.innerText = c.nombre;
-          sel.appendChild(o);
-        });
-      } catch (e) {
-        console.error(e);
+  try {
+    const res = await fetch(`${API_URL}/api/categorias`, {
+      headers: {
+        'Authorization': `Bearer ${token}` // si tu endpoint lo requiere
       }
-    }
+    });
+
+    const cats = await res.json();
+    const sel = document.getElementById('filtroCategoria');
+
+    cats.forEach(c => {
+      const o = document.createElement('option');
+      o.value = c.id;
+      o.innerText = c.nombre;
+      sel.appendChild(o);
+    });
+  } catch (e) {
+    console.error('Error al cargar categorías:', e);
+    document.getElementById('filtroCategoria').innerHTML = '<option>Error al cargar</option>';
+  }
+}
+
 
     async function cargarCursos() {
-      try {
-        const res = await fetch('http://localhost:3001/api/cursos');
-        todosCursos = await res.json();
-        renderizar(todosCursos);
-      } catch {
-        document.getElementById('contenedorCursos').innerHTML = '<p>Error cargando cursos.</p>';
+  try {
+    const res = await fetch(`${API_URL}/api/cursos`, {
+      headers: {
+        'Authorization': `Bearer ${token}` // si tu endpoint lo requiere
       }
-    }
+    });
+
+    if (!res.ok) throw new Error('Error al obtener cursos');
+
+    const todosCursos = await res.json();
+    renderizar(todosCursos);
+  } catch (error) {
+    console.error('Error cargando cursos:', error);
+    document.getElementById('contenedorCursos').innerHTML = '<p>Error cargando cursos.</p>';
+  }
+}
 
     function renderizar(lista) {
       const cont = document.getElementById('contenedorCursos');

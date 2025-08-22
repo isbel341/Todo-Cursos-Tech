@@ -92,7 +92,7 @@
 </div>
 
 <script>
-const API_URL = "http://localhost:3001/api/comentarios";
+const API_URL = import.meta.env.VITE_API_URL + '/api/comentarios';
 const cursoId = 1; // 🔹 Cambia esto por el ID del curso actual
 const token = localStorage.getItem("token"); // Debe haberse guardado al iniciar sesión
 

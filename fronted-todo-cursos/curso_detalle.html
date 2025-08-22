@@ -77,9 +77,14 @@ function transformarYoutube(url) {
 let videosVistos = new Set();
 let players = [];
 
-async function cargarVideos() {
+async function cargarVideos(cursoId) {
   try {
-    const res = await fetch(`http://localhost:3001/api/curso_detalle/videos?curso_id=${cursoId}`);
+    const res = await fetch(`${API_URL}/api/curso_detalle/videos?curso_id=${cursoId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
     if (!res.ok) throw new Error('Error al obtener videos');
     const videos = await res.json();
 
@@ -116,12 +121,16 @@ async function cargarVideos() {
       videoContainer.appendChild(videoDiv);
     });
 
-    // Cargar API de YouTube
-    const tag = document.createElement('script');
-    tag.src = "https://www.youtube.com/iframe_api";
-    document.body.appendChild(tag);
+    // Cargar API de YouTube solo una vez
+    if (!document.getElementById('youtube-api')) {
+      const tag = document.createElement('script');
+      tag.src = "https://www.youtube.com/iframe_api";
+      tag.id = 'youtube-api';
+      document.body.appendChild(tag);
+    }
 
   } catch (error) {
+    console.error(error);
     videoContainer.innerHTML = `<p>${error.message}</p>`;
   }
 }
@@ -155,7 +164,7 @@ function irAEvaluacion() {
 
 async function marcarCursoCompletado() {
   try {
-    const res = await fetch('http://localhost:3001/api/cursos-completados/marcar', {
+    const res = await fetch(`${API_URL}/api/cursos-completados/marcar`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
