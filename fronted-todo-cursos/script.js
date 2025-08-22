@@ -1,3 +1,5 @@
+const API_URL = 'https://todo-cursos-tech-backend-1.onrender.com';
+
 // script.js
 // Alternar visibilidad del menú hamburguesa
 function toggleMenu() {
@@ -45,7 +47,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 // Ejemplo de llamada a la API para agregar un curso al carrito
 // Asegúrate de reemplazar el ID del curso con el real que deseas agregar
-await fetch('http://localhost:3001/api/carrito', {
+await fetch(`${API_URL}/api/carrito`, {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
